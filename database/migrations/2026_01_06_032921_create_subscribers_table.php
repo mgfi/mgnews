@@ -11,13 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // database/migrations/xxxx_xx_xx_create_subscribers_table.php
-
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
+
             $table->string('email')->unique();
             $table->boolean('is_active')->default(true);
+
+            // źródło zapisu: shop | blog | admin | api
+            $table->string('source')->nullable();
+
+            // powiązanie z userem (opcjonalne)
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
