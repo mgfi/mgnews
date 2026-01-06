@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Subscriber;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,25 +14,49 @@ use App\Models\User;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->middleware('guest')->name('login');
+Route::middleware('guest')->group(function () {
 
-Route::post('/login', function (Request $request) {
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    Route::get('/login', function () {
+        return view('auth.login');
+    })->name('login');
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-        return redirect()->intended('/');
-    }
+    Route::post('/login', function (Request $request) {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    return back()->withErrors([
-        'email' => 'Nieprawidłowy email lub hasło.',
-    ]);
-})->middleware('guest');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/');
+        }
+
+        return back()->withErrors([
+            'email' => 'Nieprawidłowy email lub hasło.',
+        ]);
+    });
+
+    Route::get('/register', function () {
+        return view('auth.register');
+    })->name('register');
+
+    Route::post('/register', function (Request $request) {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users'],
+            'password' => ['required', 'confirmed', 'min:6'],
+        ]);
+
+        User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'utype' => 'USR',
+        ]);
+
+        return redirect()->route('login');
+    });
+});
 
 Route::post('/logout', function (Request $request) {
     Auth::logout();
@@ -40,26 +66,7 @@ Route::post('/logout', function (Request $request) {
     return redirect('/');
 })->middleware('auth')->name('logout');
 
-Route::get('/register', function () {
-    return view('auth.register');
-})->middleware('guest')->name('register');
 
-Route::post('/register', function (Request $request) {
-    $data = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'email', 'unique:users'],
-        'password' => ['required', 'confirmed', 'min:6'],
-    ]);
-
-    User::create([
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'password' => Hash::make($data['password']),
-        'utype' => 'USR',
-    ]);
-
-    return redirect()->route('login');
-})->middleware('guest');
 
 /*
 |--------------------------------------------------------------------------
@@ -71,19 +78,93 @@ Route::get('/', function () {
     return view('home');
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
-| PANEL UŻYTKOWNIKA / ADMIN
+| PANEL UŻYTKOWNIKA
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth')->group(function () {
 
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::view('/profile', 'profile')->name('profile');
+});
 
-    Route::view('profile', 'profile')->name('profile');
 
-    Route::get('/admin/subscribers', function () {
+
+/*
+|--------------------------------------------------------------------------
+| PANEL ADMINA
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+
+    Route::get('/subscribers', function () {
         return view('admin.subscribers.index');
     })->name('admin.subscribers.index');
 });
+
+
+
+/*
+|--------------------------------------------------------------------------
+| NEWSLETTER – UNSUBSCRIBE / RODO
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/unsubscribe/{token}', function (string $token) {
+
+    $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
+
+    return view('unsubscribe', compact('subscriber'));
+})->name('unsubscribe.form');
+
+
+Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
+
+    $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
+
+    $request->validate([
+        'action' => ['required', 'in:unsubscribe,erase'],
+    ]);
+
+    /*
+     |--------------------------------------------------------------
+     | ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
+     |--------------------------------------------------------------
+     */
+    if ($request->action === 'unsubscribe') {
+
+        $subscriber->update([
+            'status' => 'unsubscribed',
+            'unsubscribed_at' => now(),
+        ]);
+
+        return view('unsubscribe-confirmation', [
+            'message' => 'Zostałeś wypisany z newslettera.',
+        ]);
+    }
+
+    /*
+     |--------------------------------------------------------------
+     | ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
+     |--------------------------------------------------------------
+     */
+    if ($request->action === 'erase') {
+
+        DB::table('gdpr_erased_records')->insert([
+            'email_hash' => hash('sha256', $subscriber->email),
+            'erased_at' => now(),
+            'source' => 'newsletter',
+        ]);
+
+        $subscriber->delete();
+
+        return view('unsubscribe-confirmation', [
+            'message' => 'Twoje dane zostały trwale usunięte z systemu.',
+        ]);
+    }
+})->name('unsubscribe.process');
