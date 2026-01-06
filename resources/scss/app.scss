@@ -1,0 +1,13 @@
+// 1️⃣ Nadpisania Bootstrap (zanim się załaduje)
+@import 'variables';
+
+// 2️⃣ Bootstrap (SCSS, nie CSS)
+@import "bootstrap/scss/bootstrap";
+
+// 3️⃣ Twoje globalne style
+@import 'custom';
+
+// 4️⃣ Komponenty
+@import 'components/newsletter';
+@import 'components/buttons';
+@import 'components/forms';
