@@ -1,13 +1,71 @@
 // 1️⃣ Nadpisania Bootstrap (zanim się załaduje)
-@import 'variables';
+@import "variables";
 
 // 2️⃣ Bootstrap (SCSS, nie CSS)
 @import "bootstrap/scss/bootstrap";
 
 // 3️⃣ Twoje globalne style
-@import 'custom';
+@import "custom";
 
 // 4️⃣ Komponenty
-@import 'components/newsletter';
-@import 'components/buttons';
-@import 'components/forms';
+@import "components/newsletter";
+@import "components/buttons";
+@import "components/forms";
+/* === TRIX FIXES FOR GRID === */
+
+trix-editor {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.trix-content {
+    width: 100%;
+}
+
+.flex-fill {
+    min-width: 0; // 🔑 KLUCZOWE dla flexboxa
+}
+/* === ADMIN LAYOUT OVERFLOW FIX === */
+
+html,
+body {
+    overflow-x: hidden;
+}
+
+main {
+    overflow-x: hidden;
+}
+
+.flex-fill {
+    min-width: 0; // kluczowe dla flexboxa
+}
+
+/* TRIX safety */
+trix-editor {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+/* === TRIX CONTENT HORIZONTAL SCROLL FIX === */
+
+trix-editor {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+trix-editor .trix-content,
+trix-editor .trix-editor__editor {
+    max-width: 100%;
+    overflow-x: hidden;
+    white-space: normal; // 🔑 KLUCZ
+    word-break: break-word; // 🔑 KLUCZ
+    overflow-wrap: anywhere; // 🔑 KLUCZ
+}
+
+trix-editor ul,
+trix-editor ol,
+trix-editor li,
+trix-editor p,
+trix-editor a {
+    max-width: 100%;
+    word-break: break-word;
+}
