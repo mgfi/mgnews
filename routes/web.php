@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Subscriber;
 use App\Models\NewsletterIssue;
+use App\Livewire\Admin\NewsletterIndex;
+use App\Livewire\Admin\NewsletterEditor;
 /*
 |--------------------------------------------------------------------------
 | AUTH – WŁASNY (BEZ BREEZE / VOLT)
@@ -100,18 +102,28 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-    Route::get('/subscribers', function () {
-        return view('admin.subscribers.index');
-    })->name('admin.subscribers.index');
-    Route::get('/newsletters/{newsletter}/edit-content', function (NewsletterIssue $newsletter) {
-        return view('admin.newsletters.edit-content', compact('newsletter'));
-    })->name('admin.newsletters.edit-content');
-});
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
+
+        Route::get('/subscribers', function () {
+            return view('admin.subscribers.index');
+        })->name('admin.subscribers.index');
+
+        // LISTA NEWSLETTERÓW
+        Route::get('/newsletters', NewsletterIndex::class)
+            ->name('admin.newsletters.index');
+
+        // EDYCJA NEWSLETTERA (LIVEWIRE)
+        Route::get('/newsletters/{newsletter}/edit-content', NewsletterEditor::class)
+            ->name('admin.newsletters.edit');
+
+        // send → później
+    });
 
 
 

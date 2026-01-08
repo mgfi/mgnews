@@ -20,8 +20,9 @@
             </aside>
 
             <main class="col-md-10 p-4">
-                @yield('content')
+                {{ $slot }}
             </main>
+
         </div>
     </div>
     @livewireScripts
