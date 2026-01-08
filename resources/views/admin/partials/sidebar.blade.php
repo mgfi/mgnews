@@ -14,4 +14,10 @@
         </a>
     </li>
 
+    <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('admin.newsletters.*') ? 'fw-bold' : '' }}"
+            href="{{ route('admin.newsletters.index') }}">
+            Newslettery
+        </a>
+    </li>
 </ul>

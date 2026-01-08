@@ -34,18 +34,17 @@ class NewsletterEditor extends Component
     {
         abort_if($this->newsletter->isSent(), 403);
 
-        $renderer = new NewsletterHtmlRenderer();
-
         $this->newsletter->update([
             'subject' => $this->subject,
             'preview_text' => $this->preview_text,
             'content_json' => $this->rows,
-            'content_html' => $renderer->render($this->rows),
-            'status' => 'draft',
         ]);
 
-        session()->flash('success', 'Newsletter zapisany (JSON).');
+        return redirect()
+            ->route('admin.newsletters.index')
+            ->with('success', 'Newsletter zapisany');
     }
+
     /* =========================
  | ROW BUILDERS (z bloga)
  ========================= */
@@ -115,6 +114,7 @@ class NewsletterEditor extends Component
 
     public function render()
     {
-        return view('livewire.admin.newsletter-editor');
+        return view('livewire.admin.newsletter-editor')
+            ->layout('layouts.admin');
     }
 }

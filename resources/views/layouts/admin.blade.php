@@ -20,8 +20,13 @@
             </aside>
 
             <main class="col-md-10 p-4">
-                {{ $slot }}
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
             </main>
+
 
         </div>
     </div>

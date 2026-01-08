@@ -1,5 +1,9 @@
 <div class="container">
-
+    @if (session()->has('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <h3 class="mb-4">📨 Newslettery</h3>
 
     <div class="card">
@@ -10,6 +14,7 @@
                     <tr>
                         <th style="width:60px;">#</th>
                         <th>Subject</th>
+                        <th style="width:80px;">Bloki</th>
                         <th style="width:140px;">Status</th>
                         <th style="width:180px;">Utworzony</th>
                         <th style="width:220px;">Akcje</th>
@@ -24,7 +29,9 @@
                             <td>
                                 {{ $newsletter->subject ?? '—' }}
                             </td>
-
+                            <td>
+                                {{ is_array($newsletter->content_json) ? count($newsletter->content_json) : 0 }}
+                            </td>
                             <td>
                                 @if ($newsletter->status === 'sent')
                                     <span class="badge bg-success">wysłany</span>
@@ -41,7 +48,7 @@
 
                             <td class="d-flex gap-1">
                                 <a href="{{ route('admin.newsletters.edit', $newsletter) }}"
-                                   class="btn btn-sm btn-primary">
+                                    class="btn btn-sm btn-primary">
                                     ✏️ Edytuj
                                 </a>
 
@@ -56,7 +63,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
+                            <td colspan="6" class="text-center text-muted">
                                 Brak newsletterów.
                             </td>
                         </tr>
