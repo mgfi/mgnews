@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Subscriber;
-
+use App\Models\NewsletterIssue;
 /*
 |--------------------------------------------------------------------------
 | AUTH – WŁASNY (BEZ BREEZE / VOLT)
@@ -102,9 +102,15 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
     Route::get('/subscribers', function () {
         return view('admin.subscribers.index');
     })->name('admin.subscribers.index');
+    Route::get('/newsletters/{newsletter}/edit-content', function (NewsletterIssue $newsletter) {
+        return view('admin.newsletters.edit-content', compact('newsletter'));
+    })->name('admin.newsletters.edit-content');
 });
 
 
