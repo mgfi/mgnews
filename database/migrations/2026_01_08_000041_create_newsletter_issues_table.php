@@ -31,8 +31,8 @@ return new class extends Migration {
              | OPTIONAL SLUGS (ARCHIVE / PUBLIC VIEW / SEO)
              |--------------------------------------------------------------------------
              */
-            $table->string('slug_pl')->nullable()->unique();
-            $table->string('slug_en')->nullable()->unique();
+            $table->string('slug_pl')->nullable()->index();
+            $table->string('slug_en')->nullable()->index();
 
             /*
              |--------------------------------------------------------------------------

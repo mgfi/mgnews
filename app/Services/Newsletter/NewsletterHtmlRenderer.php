@@ -71,11 +71,15 @@ class NewsletterHtmlRenderer
         $src = asset('storage/' . $block['image_path']);
         $alt = e($block['alt'] ?? '');
 
-        return '<img src="' . $src . '" alt="' . $alt . '" width="100%" style="display:block;border:0;">';
+        return '<img src="' . $src . '" alt="' . $alt . '" width="100%" style="display:block;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">';
     }
+
 
     /**
      * Opakowanie HTML maila (600px, kompatybilne z email clientami)
+     */
+    /**
+     * Wrap full newsletter HTML (email-safe, 600px container)
      */
     protected function wrap(string $content): string
     {

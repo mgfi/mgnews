@@ -12,10 +12,30 @@ class SubscribersTable extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    public string $email = '';
+
+    protected $rules = [
+        'email' => 'required|email|unique:subscribers,email',
+    ];
+
+    public function add(): void
+    {
+        $this->validate();
+
+        Subscriber::create([
+            'email' => $this->email,
+            'is_active' => true,
+            'source' => 'admin',
+        ]);
+
+        $this->reset('email');
+        session()->flash('success', 'Subskrybent dodany.');
+    }
+
     public function render()
     {
         return view('livewire.admin.subscribers-table', [
             'subscribers' => Subscriber::latest()->paginate(15),
-        ]);
+        ])->layout('layouts.admin');
     }
 }
