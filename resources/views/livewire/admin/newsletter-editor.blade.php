@@ -1,6 +1,6 @@
 <div class="w-100">
 
-    <h3 class="mb-4">✉️ Edycja Newslettera</h3>
+    <h3 class="mb-4">✉️ Edycja newslettera</h3>
 
     @if (session()->has('success'))
         <div class="alert alert-success">
@@ -8,28 +8,52 @@
         </div>
     @endif
 
-    {{-- Subject --}}
+    {{-- Email subject (visible in inbox) --}}
     <div class="mb-3">
-        <label class="form-label">Subject</label>
-        <input type="text" class="form-control" wire:model.defer="subject">
+        <label class="form-label">
+            Temat
+            <span class="text-muted" data-bs-toggle="tooltip"
+                title="Tytuł wiadomości widoczny w skrzynce odbiorczej odbiorcy." style="cursor: help;">
+                ⓘ
+            </span>
+        </label>
+        <input type="text" class="form-control" wire:model.defer="title_pl">
     </div>
 
-    {{-- Preheader --}}
+    {{-- Email preview text (preheader) --}}
     <div class="mb-3">
-        <label class="form-label">Preheader</label>
-        <input type="text" class="form-control" wire:model.defer="preview_text">
+        <label class="form-label">
+            Tekst podglądu
+            <span class="text-muted" data-bs-toggle="tooltip"
+                title="Krótki tekst widoczny obok tematu w skrzynce e-mail." style="cursor: help;">
+                ⓘ
+            </span>
+        </label>
+        <input type="text" class="form-control" wire:model.defer="preview_text_pl">
     </div>
 
     {{-- Add row --}}
     <div class="mb-3">
         <label class="form-label">Dodaj wiersz</label>
         <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgImg">IMG IMG</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPP">P P</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgP">IMG P</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPImg">P IMG</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleImg">IMG</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleP">P</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgImg">
+                IMG IMG
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPP">
+                P P
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgP">
+                IMG P
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPImg">
+                P IMG
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleImg">
+                IMG
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleP">
+                P
+            </button>
         </div>
     </div>
 
@@ -51,7 +75,7 @@
                                     class="img-fluid mb-2">
                             @endif
 
-                            <input type="text" class="form-control" placeholder="Alt tekst"
+                            <input type="text" class="form-control" placeholder="Tekst alternatywny (ALT)"
                                 wire:model.defer="rows.{{ $rIndex }}.{{ $cIndex }}.alt">
                         @endif
 
@@ -65,11 +89,9 @@
 
                             <div wire:ignore>
                                 <trix-editor input="{{ $inputId }}" class="trix-content"
-                                    data-row="{{ $rIndex }}" data-col="{{ $cIndex }}">
-                                </trix-editor>
+                                    data-row="{{ $rIndex }}" data-col="{{ $cIndex }}"></trix-editor>
                             </div>
                         @endif
-
 
                     </div>
                 @endforeach
@@ -88,8 +110,10 @@
     </button>
 
 </div>
+
 @push('scripts')
     <script>
+        // Sync Trix editor content with Livewire rows array
         document.addEventListener('trix-change', function(event) {
             const editor = event.target;
             const row = editor.dataset.row;
@@ -106,6 +130,7 @@
                 .set(`rows.${row}.${col}.html`, editor.value);
         });
 
+        // Disable file uploads inside Trix editor
         document.addEventListener('trix-file-accept', function(event) {
             event.preventDefault();
         });

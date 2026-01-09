@@ -15,18 +15,29 @@ class NewsletterEditor extends Component
 
     public string $previewHtml = '';
 
-    public string $subject = '';
-    public ?string $preview_text = null;
+    /**
+     * Email subject (PL)
+     */
+    public string $title_pl = '';
 
+    /**
+     * Email preview text (preheader, PL)
+     */
+    public ?string $preview_text_pl = null;
+
+    /**
+     * Newsletter rows structure
+     */
     public array $rows = [];
+
     public array $uploads = [];
 
     public function mount(NewsletterIssue $newsletter)
     {
         $this->newsletter = $newsletter;
 
-        $this->subject = $newsletter->subject;
-        $this->preview_text = $newsletter->preview_text;
+        $this->title_pl = $newsletter->title_pl;
+        $this->preview_text_pl = $newsletter->preview_text_pl;
         $this->rows = $newsletter->content_json ?? [];
     }
 
@@ -34,10 +45,20 @@ class NewsletterEditor extends Component
     {
         abort_if($this->newsletter->isSent(), 403);
 
+        // Count total blocks (for listing & sorting)
+        $blocksCount = 0;
+
+        foreach ($this->rows as $row) {
+            if (is_array($row)) {
+                $blocksCount += count($row);
+            }
+        }
+
         $this->newsletter->update([
-            'subject' => $this->subject,
-            'preview_text' => $this->preview_text,
+            'title_pl' => $this->title_pl,
+            'preview_text_pl' => $this->preview_text_pl,
             'content_json' => $this->rows,
+            'blocks_count' => $blocksCount,
         ]);
 
         return redirect()
@@ -46,8 +67,8 @@ class NewsletterEditor extends Component
     }
 
     /* =========================
- | ROW BUILDERS (z bloga)
- ========================= */
+     | ROW BUILDERS
+     ========================= */
 
     public function addRowImgImg()
     {
@@ -100,6 +121,7 @@ class NewsletterEditor extends Component
         unset($this->rows[$index]);
         $this->rows = array_values($this->rows);
     }
+
     public function saveBlock(int $rowIndex): void
     {
         if (!isset($this->rows[$rowIndex])) {
@@ -109,8 +131,6 @@ class NewsletterEditor extends Component
         $renderer = new NewsletterHtmlRenderer();
         $this->previewHtml = $renderer->render($this->rows);
     }
-
-
 
     public function render()
     {

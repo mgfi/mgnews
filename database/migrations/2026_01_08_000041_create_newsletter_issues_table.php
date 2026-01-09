@@ -10,17 +10,66 @@ return new class extends Migration {
         Schema::create('newsletter_issues', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');
-            $table->string('subject');
-            $table->string('preview_text')->nullable();
+            /*
+             |--------------------------------------------------------------------------
+             | SUBJECT / TITLE (VISIBLE IN INBOX)
+             |--------------------------------------------------------------------------
+             */
+            $table->string('title_pl');
+            $table->string('title_en')->nullable();
+
+            /*
+             |--------------------------------------------------------------------------
+             | PREHEADER (TEXT NEXT TO SUBJECT IN INBOX)
+             |--------------------------------------------------------------------------
+             */
+            $table->string('preview_text_pl')->nullable();
+            $table->string('preview_text_en')->nullable();
+
+            /*
+             |--------------------------------------------------------------------------
+             | OPTIONAL SLUGS (ARCHIVE / PUBLIC VIEW / SEO)
+             |--------------------------------------------------------------------------
+             */
+            $table->string('slug_pl')->nullable()->unique();
+            $table->string('slug_en')->nullable()->unique();
+
+            /*
+             |--------------------------------------------------------------------------
+             | CONTENT
+             |--------------------------------------------------------------------------
+             */
             $table->json('content_json')->nullable();
             $table->longText('content_html')->nullable();
 
-            $table->enum('status', ['draft', 'scheduled', 'sent'])->default('draft');
+            /*
+             |--------------------------------------------------------------------------
+             | DENORMALIZED COUNTER (FOR SORTING & PERFORMANCE)
+             |--------------------------------------------------------------------------
+             */
+            $table->unsignedInteger('blocks_count')->default(0)->index();
 
-            $table->timestamp('scheduled_at')->nullable();
+            /*
+             |--------------------------------------------------------------------------
+             | STATUS
+             |--------------------------------------------------------------------------
+             */
+            $table->enum('status', ['draft', 'sending', 'sent'])
+                ->default('draft')
+                ->index();
+
+            /*
+             |--------------------------------------------------------------------------
+             | SEND TIMESTAMP
+             |--------------------------------------------------------------------------
+             */
             $table->timestamp('sent_at')->nullable();
 
+            /*
+             |--------------------------------------------------------------------------
+             | AUTHOR
+             |--------------------------------------------------------------------------
+             */
             $table->foreignId('created_by')
                 ->constrained('users')
                 ->cascadeOnDelete();

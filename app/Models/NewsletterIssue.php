@@ -10,20 +10,33 @@ class NewsletterIssue extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'subject',
-        'preview_text',
+        // Subject / title
+        'title_pl',
+        'title_en',
+
+        // Preheader
+        'preview_text_pl',
+        'preview_text_en',
+
+        // Optional slugs
+        'slug_pl',
+        'slug_en',
+
+        // Content
         'content_json',
         'content_html',
+        'blocks_count',
+
+        // State
         'status',
-        'scheduled_at',
         'sent_at',
+
+        // Meta
         'created_by',
     ];
 
     protected $casts = [
         'content_json' => 'array',
-        'scheduled_at' => 'datetime',
         'sent_at' => 'datetime',
     ];
 
@@ -36,9 +49,9 @@ class NewsletterIssue extends Model
         return $this->status === 'draft';
     }
 
-    public function isScheduled(): bool
+    public function isSending(): bool
     {
-        return $this->status === 'scheduled';
+        return $this->status === 'sending';
     }
 
     public function isSent(): bool
@@ -48,6 +61,6 @@ class NewsletterIssue extends Model
 
     public function canBeEdited(): bool
     {
-        return ! $this->isSent();
+        return $this->isDraft();
     }
 }

@@ -6,30 +6,98 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\NewsletterIssue;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Services\Newsletter\NewsletterHtmlRenderer;
+use App\Actions\SendNewsletterIssue;
+use DomainException;
 
 class NewsletterIndex extends Component
 {
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
-
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'desc';
     public function create()
     {
         $newsletter = NewsletterIssue::create([
+            'title_pl' => 'Nowy newsletter',
+            'title_en' => 'New newsletter',
+            'preview_text_pl' => null,
+            'preview_text_en' => null,
             'status' => 'draft',
-            'subject' => null,
-            'preview_text' => null,
             'content_json' => [],
             'created_by' => Auth::id(),
         ]);
 
         return redirect()->route('admin.newsletters.edit', $newsletter);
     }
+    public function sortBy(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
+    /**
+     * 🧪 Test Send — wysyłka testowa do aktualnego admina
+     */
+    public function sendTest(int $newsletterId): void
+    {
+        $newsletter = NewsletterIssue::findOrFail($newsletterId);
+
+        // soft guard: brak bloków
+        if (empty($newsletter->content_json) || count($newsletter->content_json) === 0) {
+            session()->flash('error', 'Newsletter nie ma żadnych bloków.');
+            return;
+        }
+
+        $renderer = new NewsletterHtmlRenderer();
+        $html = $renderer->render($newsletter->content_json);
+
+        Mail::html($html, function ($message) use ($newsletter) {
+            $message
+                ->to(Auth::user()->email)
+                ->subject('[TEST] ' . ($newsletter->subject ?? 'Newsletter testowy'));
+        });
+
+        session()->flash('success', 'Testowy email został wysłany na Twój adres.');
+    }
+
+    public function send(int $newsletterId): void
+    {
+        logger()->info('SEND START', ['id' => $newsletterId]);
+
+        $newsletter = \App\Models\NewsletterIssue::find($newsletterId);
+
+        logger()->info('NEWSLETTER FOUND', [
+            'exists' => (bool) $newsletter,
+            'status' => $newsletter?->status,
+            'content_json' => $newsletter?->content_json,
+        ]);
+
+        // brutalny test zapisu
+        $newsletter->update(['status' => 'sending']);
+
+        logger()->info('STATUS UPDATED');
+
+        session()->flash('success', 'STATUS FORCE UPDATED');
+    }
+
 
     public function render()
     {
+        $newsletters = NewsletterIssue::query()
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate(10);
+
         return view('livewire.admin.newsletter-index', [
-            'newsletters' => NewsletterIssue::orderByDesc('id')->paginate(10),
+            'newsletters' => $newsletters,
         ])->layout('layouts.admin');
     }
 }
