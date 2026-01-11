@@ -22,9 +22,17 @@ return new class extends Migration
             /**
              * User type:
              * ADM = Administrator
-             * USR = Regular user / customer
+             * USR = Operator
              */
             $table->string('utype', 3)->default('USR');
+
+            /**
+             * Kto utworzył konto (admin)
+             */
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->rememberToken();
             $table->timestamps();

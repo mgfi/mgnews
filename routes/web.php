@@ -3,26 +3,42 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
 use App\Models\Subscriber;
-use App\Models\NewsletterIssue;
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
+
 /*
 |--------------------------------------------------------------------------
-| AUTH – WŁASNY (BEZ BREEZE / VOLT)
+| ROOT – ROUTER DECYZYJNY (KLUCZ DO BRAKU PĘTLI)
 |--------------------------------------------------------------------------
 */
 
+Route::get('/', function () {
+
+    if (Auth::check()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('login');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| AUTH – LOGOWANIE (BEZ REJESTRACJI)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('guest')->group(function () {
 
+    // FORMULARZ LOGOWANIA
     Route::get('/login', function () {
         return view('auth.login');
     })->name('login');
 
+    // OBSŁUGA LOGOWANIA
     Route::post('/login', function (Request $request) {
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -30,70 +46,30 @@ Route::middleware('guest')->group(function () {
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/');
+
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
             'email' => 'Nieprawidłowy email lub hasło.',
         ]);
     });
-
-    Route::get('/register', function () {
-        return view('auth.register');
-    })->name('register');
-
-    Route::post('/register', function (Request $request) {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required', 'confirmed', 'min:6'],
-        ]);
-
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'utype' => 'USR',
-        ]);
-
-        return redirect()->route('login');
-    });
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| WYLOGOWANIE
+|--------------------------------------------------------------------------
+*/
 Route::post('/logout', function (Request $request) {
+
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return redirect('/');
+    return redirect()->route('login');
 })->middleware('auth')->name('logout');
-
-
-
-/*
-|--------------------------------------------------------------------------
-| STRONY PUBLICZNE
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/', function () {
-    return view('home');
-});
-
-
-
-/*
-|--------------------------------------------------------------------------
-| PANEL UŻYTKOWNIKA
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth')->group(function () {
-
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
-    Route::view('/profile', 'profile')->name('profile');
-});
-
 
 
 /*
@@ -101,7 +77,6 @@ Route::middleware('auth')->group(function () {
 | PANEL ADMINA
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->group(function () {
@@ -121,18 +96,14 @@ Route::middleware(['auth', 'admin'])
         // EDYCJA NEWSLETTERA (LIVEWIRE)
         Route::get('/newsletters/{newsletter}/edit-content', NewsletterEditor::class)
             ->name('admin.newsletters.edit');
-
-        // send → później
     });
-
 
 
 /*
 |--------------------------------------------------------------------------
-| NEWSLETTER – UNSUBSCRIBE / RODO
+| NEWSLETTER – UNSUBSCRIBE / RODO (PUBLICZNE)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/unsubscribe/{token}', function (string $token) {
 
     $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
@@ -149,11 +120,7 @@ Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
         'action' => ['required', 'in:unsubscribe,erase'],
     ]);
 
-    /*
-     |--------------------------------------------------------------
-     | ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
-     |--------------------------------------------------------------
-     */
+    // ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
     if ($request->action === 'unsubscribe') {
 
         $subscriber->update([
@@ -166,11 +133,7 @@ Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
         ]);
     }
 
-    /*
-     |--------------------------------------------------------------
-     | ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
-     |--------------------------------------------------------------
-     */
+    // ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
     if ($request->action === 'erase') {
 
         DB::table('gdpr_erased_records')->insert([

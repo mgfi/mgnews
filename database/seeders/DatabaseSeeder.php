@@ -13,23 +13,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // ADMIN
+        // ADMIN (pierwsze konto systemu)
         User::updateOrCreate(
             ['email' => 'admin@admin.pl'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('admin1234'),
                 'utype' => 'ADM',
-            ]
-        );
-
-        // USER / CUSTOMER
-        User::updateOrCreate(
-            ['email' => 'user@user.pl'],
-            [
-                'name' => 'User',
-                'password' => Hash::make('user1234'),
-                'utype' => 'USR',
+                'created_by' => null, // pierwszy admin
             ]
         );
     }

@@ -43,9 +43,6 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">Zaloguj</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Rejestracja</a>
-                        </li>
                     @endauth
                 </ul>
             </div>
