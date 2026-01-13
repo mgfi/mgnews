@@ -14,11 +14,21 @@ return new class extends Migration
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
 
+            // email
             $table->string('email')->unique();
-            $table->boolean('is_active')->default(true);
+
+            // aktywność subskrypcji
+            $table->boolean('is_active')->default(true)->index();
+
+            // token do wypisu (RODO / 1-click unsubscribe)
+            $table->string('unsubscribe_token', 64)->unique();
+
+            // timestamps biznesowe
+            $table->timestamp('subscribed_at')->nullable();
+            $table->timestamp('unsubscribed_at')->nullable();
 
             // źródło zapisu: shop | blog | admin | api
-            $table->string('source')->nullable();
+            $table->string('source')->nullable()->index();
 
             // powiązanie z userem (opcjonalne)
             $table->foreignId('user_id')
@@ -26,6 +36,7 @@ return new class extends Migration
                 ->constrained()
                 ->nullOnDelete();
 
+            // systemowe
             $table->timestamps();
             $table->softDeletes();
         });
