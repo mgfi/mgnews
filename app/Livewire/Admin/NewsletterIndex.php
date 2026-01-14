@@ -71,23 +71,16 @@ class NewsletterIndex extends Component
 
     public function send(int $newsletterId): void
     {
-        logger()->info('SEND START', ['id' => $newsletterId]);
+        logger()->info('SEND REQUEST', ['id' => $newsletterId]);
 
-        $newsletter = \App\Models\NewsletterIssue::find($newsletterId);
+        \App\Jobs\SendNewsletterIssueJob::dispatch($newsletterId);
 
-        logger()->info('NEWSLETTER FOUND', [
-            'exists' => (bool) $newsletter,
-            'status' => $newsletter?->status,
-            'content_json' => $newsletter?->content_json,
-        ]);
-
-        // brutalny test zapisu
-        $newsletter->update(['status' => 'sending']);
-
-        logger()->info('STATUS UPDATED');
-
-        session()->flash('success', 'STATUS FORCE UPDATED');
+        session()->flash(
+            'success',
+            'Newsletter został zakolejkowany do wysyłki.'
+        );
     }
+
 
 
     public function render()

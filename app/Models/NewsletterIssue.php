@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\Newsletter\NewsletterHtmlRenderer;
 
 class NewsletterIssue extends Model
 {
@@ -76,5 +77,23 @@ class NewsletterIssue extends Model
     public function scopeSent($query)
     {
         return $query->where('status', 'sent');
+    }
+    /* =========================
+ | Snapshot HTML
+ ========================= */
+
+    public function snapshotHtml(): void
+    {
+        // snapshot robimy tylko raz
+        if (! empty($this->content_html)) {
+            return;
+        }
+
+        $html = app(NewsletterHtmlRenderer::class)
+            ->render($this->content_json ?? []);
+
+        $this->update([
+            'content_html' => $html,
+        ]);
     }
 }
