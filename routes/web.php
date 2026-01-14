@@ -15,6 +15,7 @@ use App\Livewire\Admin\NewsletterEditor;
 |--------------------------------------------------------------------------
 | Jeden punkt wejścia, brak pętli redirectów
 */
+
 Route::get('/', function () {
     return Auth::check()
         ? redirect()->route('admin.dashboard')
@@ -66,7 +67,6 @@ Route::post('/logout', function (Request $request) {
     $request->session()->regenerateToken();
 
     return redirect()->route('login');
-
 })->middleware('auth')->name('logout');
 
 
@@ -118,7 +118,6 @@ Route::prefix('newsletter')
             $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
 
             return view('unsubscribe', compact('subscriber'));
-
         })->name('unsubscribe.form');
 
 
@@ -172,6 +171,12 @@ Route::prefix('newsletter')
                     'message' => 'Twoje dane zostały trwale usunięte z systemu.',
                 ]);
             }
-
         })->name('unsubscribe.process');
     });
+Route::get('/polityka-prywatnosci', function () {
+    return view('privacy-policy');
+})->name('privacy.policy');
+// use App\Http\Controllers\UnsubscribeController;
+
+// Route::get('/unsubscribe/{token}', [UnsubscribeController::class, 'unsubscribe'])
+//     ->name('unsubscribe');
