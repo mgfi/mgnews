@@ -63,4 +63,18 @@ class NewsletterIssue extends Model
     {
         return $this->isDraft();
     }
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function scopeSending($query)
+    {
+        return $query->where('status', 'sending');
+    }
+
+    public function scopeSent($query)
+    {
+        return $query->where('status', 'sent');
+    }
 }

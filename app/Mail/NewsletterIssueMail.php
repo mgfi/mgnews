@@ -24,16 +24,29 @@ class NewsletterIssueMail extends Mailable implements ShouldQueue
     ) {
         $this->issue = $issue;
         $this->subscriber = $subscriber;
+
+        /**
+         * ✅ używamy wbudowanego Mailable::$locale
+         * (public ?string $locale)
+         */
+        $this->locale = $subscriber->locale
+            ?? config('app.locale', 'pl');
     }
 
     public function build(): self
     {
         return $this
-            ->subject($this->issue->subject)
+            ->subject(
+                $this->issue->subject($this->locale)
+            )
             ->view('emails.newsletter_issue')
+            ->text('emails.newsletter_issue_text')
             ->with([
                 'html' => $this->issue->content_html,
                 'subscriber' => $this->subscriber,
+                'previewText' => $this->issue->previewText($this->locale),
+                'issue' => $this->issue,
+                'locale' => $this->locale,
             ]);
     }
 }
