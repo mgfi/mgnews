@@ -57,5 +57,12 @@
             </div>
         </div>
     </div>
+    <img
+    src="{{ route('newsletter.open', ['issue' => $issue->id, 'subscriber' => $subscriber->id]) }}"
+    width="1"
+    height="1"
+    alt=""
+    style="display:block;"
+>
 </body>
 </html>

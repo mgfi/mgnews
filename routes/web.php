@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Subscriber;
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
-
+use App\Http\Controllers\NewsletterOpenController;
 /*
 |--------------------------------------------------------------------------
 | ROOT – ENTRY POINT
@@ -120,6 +120,8 @@ Route::prefix('newsletter')
             return view('unsubscribe', compact('subscriber'));
         })->name('unsubscribe.form');
 
+        Route::get('/open/{issue}/{subscriber?}', [NewsletterOpenController::class, 'open'])
+            ->name('open');
 
         /*
          |------------------------------------------
@@ -176,7 +178,4 @@ Route::prefix('newsletter')
 Route::get('/polityka-prywatnosci', function () {
     return view('privacy-policy');
 })->name('privacy.policy');
-// use App\Http\Controllers\UnsubscribeController;
 
-// Route::get('/unsubscribe/{token}', [UnsubscribeController::class, 'unsubscribe'])
-//     ->name('unsubscribe');

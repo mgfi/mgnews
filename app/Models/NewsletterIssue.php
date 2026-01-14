@@ -96,4 +96,12 @@ class NewsletterIssue extends Model
             'content_html' => $html,
         ]);
     }
+    /* =========================
+ | Tracking
+ ========================= */
+
+    public function opens()
+    {
+        return $this->hasMany(NewsletterOpen::class, 'newsletter_issue_id');
+    }
 }
