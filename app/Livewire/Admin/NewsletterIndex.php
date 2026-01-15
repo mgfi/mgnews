@@ -8,8 +8,7 @@ use App\Models\NewsletterIssue;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Services\Newsletter\NewsletterHtmlRenderer;
-use App\Actions\SendNewsletterIssue;
-use DomainException;
+use App\Services\Newsletter\NewsletterStatsService;
 
 class NewsletterIndex extends Component
 {
@@ -89,8 +88,16 @@ class NewsletterIndex extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(10);
 
+        $statsService = app(NewsletterStatsService::class);
+
+        $stats = [];
+        foreach ($newsletters as $issue) {
+            $stats[$issue->id] = $statsService->getForIssue($issue);
+        }
+
         return view('livewire.admin.newsletter-index', [
             'newsletters' => $newsletters,
+            'stats' => $stats,
         ])->layout('layouts.admin');
     }
 }

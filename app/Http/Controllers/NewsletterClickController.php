@@ -36,7 +36,11 @@ class NewsletterClickController extends Controller
                 'user_agent' => request()->userAgent(),
             ]);
 
-            Cache::forget("newsletter:stats:{$click->newsletter_issue_id}");
+            Cache::forget(
+                \App\Services\Newsletter\NewsletterStatsService::cacheKey(
+                    $click->newsletter_issue_id
+                )
+            );
         }
         // else → klik już był, tylko redirect
 

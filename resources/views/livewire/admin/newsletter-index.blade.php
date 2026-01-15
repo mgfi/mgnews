@@ -29,6 +29,13 @@
                         <th>Temat</th>
                         <th>Tekst podglądu</th>
                         <th>Status</th>
+
+                        <th class="text-center">Opens</th>
+                        <th class="text-center">Uniques</th>
+                        <th class="text-center">Clicks</th>
+                        <th class="text-center">Uniques</th>
+                        <th class="text-center">CTR</th>
+
                         <th>Utworzony</th>
                         <th>Akcje</th>
                     </tr>
@@ -37,6 +44,20 @@
 
                     @forelse ($newsletters as $newsletter)
                         <tr>
+                            @php
+                                $isDraft = in_array($newsletter->status, ['draft', 'sending'], true);
+
+
+                                $s = $stats[$newsletter->id] ?? [
+                                    'opens' => 0,
+                                    'unique_opens' => 0,
+                                    'clicks' => 0,
+                                    'unique_clicks' => 0,
+                                    'ctr' => 0.0,
+                                ];
+                            @endphp
+
+
                             <td>{{ $newsletter->id }}</td>
 
                             <td>
@@ -56,6 +77,61 @@
                                     <span class="badge bg-secondary">draft</span>
                                 @endif
                             </td>
+                            <td class="text-center">
+                                @if ($isDraft)
+                                    <span class="text-muted">—</span>
+                                @elseif ($s['opens'] === 0)
+                                    <span class="text-muted fst-italic">0</span>
+                                @else
+                                    {{ $s['opens'] }}
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if ($isDraft)
+                                    <span class="text-muted">—</span>
+                                @else
+                                    {{ $s['unique_opens'] }}
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if ($isDraft)
+                                    <span class="text-muted">—</span>
+                                @elseif ($s['clicks'] === 0)
+                                    <span class="text-muted fst-italic">0</span>
+                                @else
+                                    {{ $s['clicks'] }}
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if ($isDraft)
+                                    <span class="text-muted">—</span>
+                                @else
+                                    {{ $s['unique_clicks'] }}
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+                                @if ($isDraft)
+                                    <span class="text-muted">—</span>
+                                @else
+                                    @php
+                                        $ctrClass = match (true) {
+                                            $s['ctr'] === 0.0 => 'text-muted',
+                                            $s['ctr'] >= 20 => 'text-success fw-bold',
+                                            $s['ctr'] >= 10 => 'text-warning fw-semibold',
+                                            default => 'text-danger',
+                                        };
+                                    @endphp
+
+                                    <span class="{{ $ctrClass }}">
+                                        {{ $s['ctr'] }}%
+                                    </span>
+                                @endif
+                            </td>
+
 
                             <td>
                                 {{ $newsletter->created_at->format('Y-m-d H:i') }}
@@ -108,7 +184,8 @@
                     @empty
 
                         <tr>
-                            <td colspan="6" class="text-center text-muted">
+                            <td colspan="11" class="text-center text-muted">
+
                                 Brak newsletterów.
                             </td>
                         </tr>
