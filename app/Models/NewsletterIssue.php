@@ -104,4 +104,12 @@ class NewsletterIssue extends Model
     {
         return $this->hasMany(NewsletterOpen::class, 'newsletter_issue_id');
     }
+    /* =========================
+ | Click tracking
+ ========================= */
+
+    public function clicks()
+    {
+        return $this->hasMany(NewsletterClick::class, 'newsletter_issue_id');
+    }
 }

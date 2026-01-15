@@ -2,8 +2,77 @@
 
 namespace App\Services\Newsletter;
 
+use App\Models\NewsletterClick;
+use Illuminate\Support\Str;
+use DOMDocument;
+use DOMXPath;
+
 class NewsletterHtmlRenderer
 {
+    protected function generateClickUrl(
+        int $issueId,
+        ?int $subscriberId,
+        string $targetUrl,
+        ?string $targetType = 'url',
+        ?int $targetId = null
+    ): string {
+        $hash = Str::random(40);
+
+        NewsletterClick::create([
+            'newsletter_issue_id' => $issueId,
+            'subscriber_id'       => $subscriberId,
+            'target_type'         => $targetType,
+            'target_id'           => $targetId,
+            'target_url'          => $targetUrl,
+            'hash'                => $hash,
+        ]);
+
+        return url('/newsletter/click/' . $hash);
+    }
+    protected function replaceLinksWithTracking(
+        string $html,
+        int $issueId,
+        ?int $subscriberId
+    ): string {
+        libxml_use_internal_errors(true);
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->loadHTML(
+            mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+
+        $xpath = new DOMXPath($dom);
+        $links = $xpath->query('//a[@href]');
+
+        foreach ($links as $link) {
+            /** @var \DOMElement $link */
+
+            $href = $link->getAttribute('href');
+
+            // pomijamy maile, tel, kotwice, unsubscribe, open pixel
+            if (
+                str_starts_with($href, 'mailto:') ||
+                str_starts_with($href, 'tel:') ||
+                str_starts_with($href, '#') ||
+                str_contains($href, '/newsletter/unsubscribe') ||
+                str_contains($href, '/newsletter/open')
+            ) {
+                continue;
+            }
+
+            $trackingUrl = $this->generateClickUrl(
+                $issueId,
+                $subscriberId,
+                $href
+            );
+
+            $link->setAttribute('href', $trackingUrl);
+        }
+
+        return $dom->saveHTML();
+    }
+
     /**
      * Renderuje cały newsletter (wszystkie wiersze)
      */
@@ -14,6 +83,12 @@ class NewsletterHtmlRenderer
         foreach ($rows as $row) {
             $html .= $this->renderRow($row);
         }
+
+        $html = $this->replaceLinksWithTracking(
+            $html,
+            1,      // tymczasowo issue_id
+            null    // tymczasowo subscriber_id
+        );
 
         return $this->wrap($html);
     }

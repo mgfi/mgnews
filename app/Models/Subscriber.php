@@ -55,4 +55,12 @@ class Subscriber extends Model
     {
         return $this->is_active === true;
     }
+    /* =========================
+ | Click tracking
+ ========================= */
+
+    public function newsletterClicks()
+    {
+        return $this->hasMany(NewsletterClick::class);
+    }
 }

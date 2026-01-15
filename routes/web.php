@@ -9,6 +9,8 @@ use App\Models\Subscriber;
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
 use App\Http\Controllers\NewsletterOpenController;
+use App\Http\Controllers\NewsletterClickController;
+
 /*
 |--------------------------------------------------------------------------
 | ROOT – ENTRY POINT
@@ -100,7 +102,7 @@ Route::middleware(['auth', 'admin'])
 
 /*
 |--------------------------------------------------------------------------
-| NEWSLETTER – UNSUBSCRIBE / RODO (PUBLIC)
+| NEWSLETTER – PUBLIC (OPEN / CLICK / UNSUBSCRIBE)
 |--------------------------------------------------------------------------
 | Publiczne, bez logowania
 */
@@ -120,8 +122,24 @@ Route::prefix('newsletter')
             return view('unsubscribe', compact('subscriber'));
         })->name('unsubscribe.form');
 
+
+        /*
+         |------------------------------------------
+         | TRACKING OPEN
+         |------------------------------------------
+         */
         Route::get('/open/{issue}/{subscriber?}', [NewsletterOpenController::class, 'open'])
             ->name('open');
+
+
+        /*
+         |------------------------------------------
+         | TRACKING CLICK
+         |------------------------------------------
+         */
+        Route::get('/click/{hash}', [NewsletterClickController::class, 'click'])
+            ->name('click');
+
 
         /*
          |------------------------------------------
@@ -175,7 +193,13 @@ Route::prefix('newsletter')
             }
         })->name('unsubscribe.process');
     });
+
+
+/*
+|--------------------------------------------------------------------------
+| POLITYKA PRYWATNOŚCI
+|--------------------------------------------------------------------------
+*/
 Route::get('/polityka-prywatnosci', function () {
     return view('privacy-policy');
 })->name('privacy.policy');
-
