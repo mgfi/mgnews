@@ -6,6 +6,7 @@ use App\Models\NewsletterClick;
 use App\Models\NewsletterIssue;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 
 class NewsletterClickController extends Controller
 {
@@ -34,6 +35,8 @@ class NewsletterClickController extends Controller
                 'clicked_at' => now(),
                 'user_agent' => request()->userAgent(),
             ]);
+
+            Cache::forget("newsletter:stats:{$click->newsletter_issue_id}");
         }
         // else → klik już był, tylko redirect
 

@@ -6,6 +6,7 @@ use App\Models\NewsletterIssue;
 use App\Models\NewsletterOpen;
 use App\Models\Subscriber;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class NewsletterOpenController extends Controller
 {
@@ -34,6 +35,8 @@ class NewsletterOpenController extends Controller
                 'opened_at'           => now(),
                 'user_agent'          => request()->userAgent(),
             ]);
+
+            Cache::forget("newsletter:stats:{$issue->id}");
         }
 
         return $this->pixel();
