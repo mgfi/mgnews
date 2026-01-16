@@ -9,6 +9,81 @@ use DOMXPath;
 
 class NewsletterHtmlRenderer
 {
+    /**
+     * Renderuje CAŁY newsletter:
+     * - treść użytkownika
+     * - systemowy footer (unsubscribe)
+     * - click tracking
+     * - email-safe wrapper
+     */
+    public function render(
+        array $rows,
+        int $issueId = 1,
+        ?int $subscriberId = null,
+        ?string $unsubscribeToken = null
+    ): string {
+        $html = '';
+
+        // 1. Render treści newslettera
+        foreach ($rows as $row) {
+            $html .= $this->renderRow($row);
+        }
+
+        // 2. Doklejenie SYSTEMOWEGO FOOTERA (z unsubscribe)
+        $html .= $this->renderFooter($unsubscribeToken);
+
+        // 3. Zamiana linków na trackingowe (unsubscribe pomijany)
+        $html = $this->replaceLinksWithTracking(
+            $html,
+            $issueId,
+            $subscriberId
+        );
+
+        // 4. Opakowanie email-safe
+        return $this->wrap($html);
+    }
+
+    /* =====================================================
+     | FOOTER SYSTEMOWY (ZAWSZE OBECNY)
+     ===================================================== */
+
+    protected function renderFooter(?string $unsubscribeToken): string
+    {
+        $unsubscribeUrl = $unsubscribeToken
+            ? url('/newsletter/unsubscribe/' . $unsubscribeToken)
+            : '#';
+
+        $privacyUrl = route('privacy.policy');
+
+        return '
+<tr>
+    <td style="padding:20px 30px 30px 30px;">
+        <hr style="border:none;border-top:1px solid #e0e0e0;margin:20px 0;">
+        <p style="
+            font-family:Arial,sans-serif;
+            font-size:12px;
+            line-height:1.5;
+            color:#777;
+            text-align:center;
+        ">
+            Otrzymujesz tę wiadomość, ponieważ zapisałeś się na newsletter.<br><br>
+
+            <a href="' . $unsubscribeUrl . '" style="color:#777;text-decoration:underline;">
+                Wypisz się
+            </a>
+            &nbsp;|&nbsp;
+            <a href="' . $privacyUrl . '" style="color:#777;text-decoration:underline;">
+                Polityka prywatności
+            </a>
+        </p>
+    </td>
+</tr>';
+    }
+
+    /* =====================================================
+     | CLICK TRACKING
+     ===================================================== */
+
     protected function generateClickUrl(
         int $issueId,
         ?int $subscriberId,
@@ -29,6 +104,7 @@ class NewsletterHtmlRenderer
 
         return url('/newsletter/click/' . $hash);
     }
+
     protected function replaceLinksWithTracking(
         string $html,
         int $issueId,
@@ -47,10 +123,9 @@ class NewsletterHtmlRenderer
 
         foreach ($links as $link) {
             /** @var \DOMElement $link */
-
             $href = $link->getAttribute('href');
 
-            // pomijamy maile, tel, kotwice, unsubscribe, open pixel
+            // pomijamy: mailto, tel, kotwice, unsubscribe, open pixel
             if (
                 str_starts_with($href, 'mailto:') ||
                 str_starts_with($href, 'tel:') ||
@@ -73,29 +148,10 @@ class NewsletterHtmlRenderer
         return $dom->saveHTML();
     }
 
-    /**
-     * Renderuje cały newsletter (wszystkie wiersze)
-     */
-    public function render(array $rows): string
-    {
-        $html = '';
+    /* =====================================================
+     | ROWS / BLOCKS
+     ===================================================== */
 
-        foreach ($rows as $row) {
-            $html .= $this->renderRow($row);
-        }
-
-        $html = $this->replaceLinksWithTracking(
-            $html,
-            1,      // tymczasowo issue_id
-            null    // tymczasowo subscriber_id
-        );
-
-        return $this->wrap($html);
-    }
-
-    /**
-     * Renderuje pojedynczy wiersz (IMG / P / P P itd.)
-     */
     protected function renderRow(array $row): string
     {
         $columns = count($row);
@@ -112,9 +168,6 @@ class NewsletterHtmlRenderer
         return '<tr>' . $cells . '</tr>';
     }
 
-    /**
-     * Renderuje pojedynczy blok
-     */
     protected function renderBlock(array $block): string
     {
         return match ($block['type'] ?? null) {
@@ -124,19 +177,16 @@ class NewsletterHtmlRenderer
         };
     }
 
-    /**
-     * Renderuje blok tekstowy (P)
-     */
     protected function renderParagraph(array $block): string
     {
-        return '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#000;">'
-            . ($block['html'] ?? '')
-            . '</div>';
+        return '<div style="
+            font-family:Arial,sans-serif;
+            font-size:14px;
+            line-height:1.6;
+            color:#000;
+        ">' . ($block['html'] ?? '') . '</div>';
     }
 
-    /**
-     * Renderuje blok obrazka (IMG)
-     */
     protected function renderImage(array $block): string
     {
         if (empty($block['image_path'])) {
@@ -146,16 +196,18 @@ class NewsletterHtmlRenderer
         $src = asset('storage/' . $block['image_path']);
         $alt = e($block['alt'] ?? '');
 
-        return '<img src="' . $src . '" alt="' . $alt . '" width="100%" style="display:block;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">';
+        return '<img
+            src="' . $src . '"
+            alt="' . $alt . '"
+            width="100%"
+            style="display:block;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;"
+        >';
     }
 
+    /* =====================================================
+     | EMAIL WRAPPER
+     ===================================================== */
 
-    /**
-     * Opakowanie HTML maila (600px, kompatybilne z email clientami)
-     */
-    /**
-     * Wrap full newsletter HTML (email-safe, 600px container)
-     */
     protected function wrap(string $content): string
     {
         return '<!DOCTYPE html>

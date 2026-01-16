@@ -6,7 +6,6 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\NewsletterIssue;
 use App\Services\Newsletter\NewsletterHtmlRenderer;
-use Illuminate\Support\Facades\Storage;
 
 class NewsletterEditor extends Component
 {
@@ -14,31 +13,32 @@ class NewsletterEditor extends Component
 
     public NewsletterIssue $newsletter;
 
-    /**
-     * Rendered HTML preview (optional, future use)
-     */
-    public string $previewHtml = '';
+    /* =====================================================
+     | BASIC META
+     ===================================================== */
 
-    /**
-     * Email subject (PL)
-     */
     public string $title_pl = '';
-
-    /**
-     * Email preview text / preheader (PL)
-     */
     public ?string $preview_text_pl = null;
 
     /**
-     * Newsletter rows structure (blocks layout)
+     * Sekcje newslettera (NOWA STRUKTURA)
      */
-    public array $rows = [];
+    public array $sections = [];
 
     /**
-     * Temporary uploads (Livewire)
-     * Key format: rowIndex_colIndex
+     * Temporary uploads
+     * Key: section_column_block
      */
     public array $uploads = [];
+
+    /**
+     * Generated preview HTML (manual)
+     */
+    public string $previewHtml = '';
+
+    /* =====================================================
+     | MOUNT
+     ===================================================== */
 
     public function mount(NewsletterIssue $newsletter): void
     {
@@ -46,143 +46,124 @@ class NewsletterEditor extends Component
 
         $this->title_pl = $newsletter->title_pl ?? '';
         $this->preview_text_pl = $newsletter->preview_text_pl;
-        $this->rows = $newsletter->content_json ?? [];
+
+        // NOWY FORMAT (sections)
+        $this->sections = $newsletter->content_json ?? [];
     }
 
-    /**
-     * Save newsletter draft
-     */
-    public function save()
+    /* =====================================================
+     | SAVE / GENERATE
+     ===================================================== */
+
+    public function save(): void
     {
         abort_if($this->newsletter->isSent(), 403);
 
-        // Persist uploaded images to storage and update rows
         $this->persistImages();
 
-        // Count total blocks (for listing & sorting)
         $blocksCount = 0;
-        foreach ($this->rows as $row) {
-            if (is_array($row)) {
-                $blocksCount += count($row);
+        foreach ($this->sections as $section) {
+            foreach ($section['columns_data'] as $column) {
+                $blocksCount += count($column);
             }
         }
 
         $this->newsletter->update([
-            'title_pl' => $this->title_pl,
-            'preview_text_pl' => $this->preview_text_pl,
-            'content_json' => $this->rows,
-            'blocks_count' => $blocksCount,
+            'title_pl'         => $this->title_pl,
+            'preview_text_pl'  => $this->preview_text_pl,
+            'content_json'     => $this->sections,
+            'blocks_count'     => $blocksCount,
         ]);
 
-        return redirect()
-            ->route('admin.newsletters.index')
-            ->with('success', 'Newsletter zapisany');
+        session()->flash('success', 'Newsletter saved');
+    }
+
+    public function generate(): void
+    {
+        $this->persistImages();
+
+        $renderer = new NewsletterHtmlRenderer();
+
+        $this->previewHtml = $renderer->render(
+            $this->sections,
+            $this->newsletter->id
+        );
     }
 
     /* =====================================================
-     | ROW BUILDERS
+     | SECTIONS
      ===================================================== */
 
-    public function addRowImgImg(): void
+    public function addSection(int $columns): void
     {
-        $this->rows[] = [
-            ['type' => 'img', 'alt' => ''],
-            ['type' => 'img', 'alt' => ''],
+        $this->sections[] = [
+            'columns' => $columns,
+            'columns_data' => array_fill(0, $columns, []),
         ];
     }
 
-    public function addRowPP(): void
+    public function removeSection(int $index): void
     {
-        $this->rows[] = [
-            ['type' => 'p', 'html' => ''],
-            ['type' => 'p', 'html' => ''],
-        ];
-    }
-
-    public function addRowImgP(): void
-    {
-        $this->rows[] = [
-            ['type' => 'img', 'alt' => ''],
-            ['type' => 'p', 'html' => ''],
-        ];
-    }
-
-    public function addRowPImg(): void
-    {
-        $this->rows[] = [
-            ['type' => 'p', 'html' => ''],
-            ['type' => 'img', 'alt' => ''],
-        ];
-    }
-
-    public function addRowSingleImg(): void
-    {
-        $this->rows[] = [
-            ['type' => 'img', 'alt' => ''],
-        ];
-    }
-
-    public function addRowSingleP(): void
-    {
-        $this->rows[] = [
-            ['type' => 'p', 'html' => ''],
-        ];
-    }
-
-    public function removeRow(int $index): void
-    {
-        unset($this->rows[$index]);
-        $this->rows = array_values($this->rows);
+        unset($this->sections[$index]);
+        $this->sections = array_values($this->sections);
     }
 
     /* =====================================================
-     | IMAGE PERSISTENCE (CRITICAL FOR EMAILS)
+     | BLOCKS
      ===================================================== */
 
-    /**
-     * Persist uploaded images to public storage
-     * and replace temporary uploads with image_path
-     */
+    public function addBlock(int $section, int $column, string $type): void
+    {
+        $block = match ($type) {
+            'h1', 'h2', 'h3' => ['type' => $type, 'text' => ''],
+            'p'              => ['type' => 'p', 'html' => ''],
+            'img'            => ['type' => 'img', 'image_path' => null, 'alt' => ''],
+            'button'         => ['type' => 'button', 'label' => '', 'url' => ''],
+            default          => null,
+        };
+
+        if ($block) {
+            $this->sections[$section]['columns_data'][$column][] = $block;
+        }
+    }
+
+    public function removeBlock(int $section, int $column, int $block): void
+    {
+        unset($this->sections[$section]['columns_data'][$column][$block]);
+        $this->sections[$section]['columns_data'][$column] =
+            array_values($this->sections[$section]['columns_data'][$column]);
+    }
+
+    /* =====================================================
+     | IMAGE HANDLING
+     ===================================================== */
+
     protected function persistImages(): void
     {
-        foreach ($this->rows as $rIndex => $row) {
-            foreach ($row as $cIndex => $block) {
-                $key = $rIndex . '_' . $cIndex;
+        foreach ($this->sections as $sIndex => $section) {
+            foreach ($section['columns_data'] as $cIndex => $column) {
+                foreach ($column as $bIndex => $block) {
+                    $key = "{$sIndex}_{$cIndex}_{$bIndex}";
 
-                if (
-                    ($block['type'] ?? null) === 'img'
-                    && isset($this->uploads[$key])
-                ) {
-                    // Store image in /storage/newsletter
-                    $path = $this->uploads[$key]->store('newsletter', 'public');
+                    if (
+                        ($block['type'] ?? null) === 'img'
+                        && isset($this->uploads[$key])
+                    ) {
+                        $path = $this->uploads[$key]
+                            ->store('newsletter', 'public');
 
-                    // Save public path into content_json
-                    $this->rows[$rIndex][$cIndex]['image_path'] = $path;
+                        $this->sections[$sIndex]['columns_data'][$cIndex][$bIndex]['image_path'] = $path;
 
-                    // Ensure alt key exists
-                    if (!isset($this->rows[$rIndex][$cIndex]['alt'])) {
-                        $this->rows[$rIndex][$cIndex]['alt'] = '';
+                        unset($this->uploads[$key]);
                     }
-
-                    // Remove temp upload
-                    unset($this->uploads[$key]);
                 }
             }
         }
     }
 
-    /**
-     * Optional HTML preview rendering (not used in sending)
-     */
-    public function saveBlock(int $rowIndex): void
-    {
-        if (!isset($this->rows[$rowIndex])) {
-            return;
-        }
-
-        $renderer = new NewsletterHtmlRenderer();
-        $this->previewHtml = $renderer->render($this->rows);
-    }
+    /* =====================================================
+     | RENDER
+     ===================================================== */
 
     public function render()
     {

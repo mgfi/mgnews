@@ -6,8 +6,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Subscriber;
+use App\Models\NewsletterSetting;
+
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
+
 use App\Http\Controllers\NewsletterOpenController;
 use App\Http\Controllers\NewsletterClickController;
 
@@ -23,7 +26,6 @@ Route::get('/', function () {
         ? redirect()->route('admin.dashboard')
         : redirect()->route('login');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +47,6 @@ Route::middleware('guest')->group(function () {
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
             return redirect()->route('admin.dashboard');
         }
 
@@ -54,7 +55,6 @@ Route::middleware('guest')->group(function () {
         ]);
     });
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -71,7 +71,6 @@ Route::post('/logout', function (Request $request) {
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
 
-
 /*
 |--------------------------------------------------------------------------
 | PANEL ADMINA
@@ -82,23 +81,80 @@ Route::middleware(['auth', 'admin'])
     ->as('admin.')
     ->group(function () {
 
+        /*
+        |-------------------------
+        | DASHBOARD
+        |-------------------------
+        */
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
+        /*
+        |-------------------------
+        | SUBSCRIBERS
+        |-------------------------
+        */
         Route::get('/subscribers', function () {
             return view('admin.subscribers.index');
         })->name('subscribers.index');
 
-        // LISTA NEWSLETTERÓW
+        /*
+        |-------------------------
+        | NEWSLETTERS
+        |-------------------------
+        */
         Route::get('/newsletters', NewsletterIndex::class)
             ->name('newsletters.index');
 
-        // EDYCJA TREŚCI NEWSLETTERA
         Route::get('/newsletters/{newsletter}/edit-content', NewsletterEditor::class)
             ->name('newsletters.edit');
-    });
 
+        /*
+        |-------------------------
+        | SETTINGS (PL / EN)
+        |-------------------------
+        */
+        Route::get('/settings', function () {
+
+            return view('admin.settings.index', [
+                'settingsPl' => NewsletterSetting::firstOrCreate(
+                    ['locale' => 'pl'],
+                    ['company_name' => '']
+                ),
+                'settingsEn' => NewsletterSetting::firstOrCreate(
+                    ['locale' => 'en'],
+                    ['company_name' => '']
+                ),
+            ]);
+        })->name('settings.index');
+
+        Route::post('/settings', function (Request $request) {
+
+            $data = $request->validate([
+                'pl.company_name'    => 'required|string|max:255',
+                'pl.company_address' => 'nullable|string',
+                'pl.company_email'   => 'nullable|email',
+                'pl.privacy_url'     => 'nullable|url',
+                'pl.footer_text'     => 'nullable|string',
+
+                'en.company_name'    => 'required|string|max:255',
+                'en.company_address' => 'nullable|string',
+                'en.company_email'   => 'nullable|email',
+                'en.privacy_url'     => 'nullable|url',
+                'en.footer_text'     => 'nullable|string',
+            ]);
+
+            foreach (['pl', 'en'] as $locale) {
+                NewsletterSetting::updateOrCreate(
+                    ['locale' => $locale],
+                    $data[$locale]
+                );
+            }
+
+            return back()->with('success', 'Settings saved');
+        })->name('settings.save');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -111,54 +167,49 @@ Route::prefix('newsletter')
     ->group(function () {
 
         /*
-         |------------------------------------------
-         | FORMULARZ WYBORU AKCJI
-         |------------------------------------------
-         */
+        |-------------------------
+        | UNSUBSCRIBE FORM
+        |-------------------------
+        */
         Route::get('/unsubscribe/{token}', function (string $token) {
 
-            $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
+            $subscriber = Subscriber::where('unsubscribe_token', $token)
+                ->firstOrFail();
 
             return view('unsubscribe', compact('subscriber'));
         })->name('unsubscribe.form');
 
-
         /*
-         |------------------------------------------
-         | TRACKING OPEN
-         |------------------------------------------
-         */
+        |-------------------------
+        | OPEN TRACKING
+        |-------------------------
+        */
         Route::get('/open/{issue}/{subscriber?}', [NewsletterOpenController::class, 'open'])
             ->name('open');
 
-
         /*
-         |------------------------------------------
-         | TRACKING CLICK
-         |------------------------------------------
-         */
+        |-------------------------
+        | CLICK TRACKING
+        |-------------------------
+        */
         Route::get('/click/{hash}', [NewsletterClickController::class, 'click'])
             ->name('click');
 
-
         /*
-         |------------------------------------------
-         | WYKONANIE AKCJI (POST)
-         |------------------------------------------
-         */
+        |-------------------------
+        | UNSUBSCRIBE / ERASE (POST)
+        |-------------------------
+        */
         Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
 
-            $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
+            $subscriber = Subscriber::where('unsubscribe_token', $token)
+                ->firstOrFail();
 
             $request->validate([
                 'action' => ['required', 'in:unsubscribe,erase'],
             ]);
 
-            /*
-             |------------------------------------------
-             | ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
-             |------------------------------------------
-             */
+            // ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
             if ($request->action === 'unsubscribe') {
 
                 $subscriber->update([
@@ -171,11 +222,7 @@ Route::prefix('newsletter')
                 ]);
             }
 
-            /*
-             |------------------------------------------
-             | ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
-             |------------------------------------------
-             */
+            // ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
             if ($request->action === 'erase') {
 
                 DB::table('gdpr_erased_records')->insert([
@@ -184,7 +231,6 @@ Route::prefix('newsletter')
                     'source'     => 'newsletter',
                 ]);
 
-                // soft delete (RODO)
                 $subscriber->delete();
 
                 return view('unsubscribe-confirmation', [
@@ -193,7 +239,6 @@ Route::prefix('newsletter')
             }
         })->name('unsubscribe.process');
     });
-
 
 /*
 |--------------------------------------------------------------------------

@@ -1,125 +1,228 @@
 <div class="w-100">
 
-    <h3 class="mb-4">✉️ Edycja newslettera</h3>
+    {{-- HEADER --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>✉️ Newsletter editor</h3>
 
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" wire:click="save">
+                💾 Save
+            </button>
+
+            <button class="btn btn-outline-secondary" wire:click="generate">
+                ✨ Create message
+            </button>
+        </div>
+    </div>
+
+    {{-- FLASH --}}
     @if (session()->has('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Email subject (visible in inbox) --}}
+    {{-- SUBJECT --}}
     <div class="mb-3">
         <label class="form-label">
-            Temat
-            <span class="text-muted" data-bs-toggle="tooltip"
-                title="Tytuł wiadomości widoczny w skrzynce odbiorczej odbiorcy." style="cursor: help;">
-                ⓘ
-            </span>
+            Subject
+            <span class="text-muted" title="Email subject visible in inbox">ⓘ</span>
         </label>
         <input type="text" class="form-control" wire:model.defer="title_pl">
     </div>
 
-    {{-- Email preview text (preheader) --}}
-    <div class="mb-3">
+    {{-- PREHEADER --}}
+    <div class="mb-4">
         <label class="form-label">
-            Tekst podglądu
-            <span class="text-muted" data-bs-toggle="tooltip"
-                title="Krótki tekst widoczny obok tematu w skrzynce e-mail." style="cursor: help;">
-                ⓘ
-            </span>
+            Preview text
+            <span class="text-muted" title="Short preview next to subject">ⓘ</span>
         </label>
         <input type="text" class="form-control" wire:model.defer="preview_text_pl">
     </div>
 
-    {{-- Add row --}}
-    <div class="mb-3">
-        <label class="form-label">Dodaj wiersz</label>
+    {{-- ADD SECTION --}}
+    <div class="mb-4">
+        <label class="form-label fw-bold">Add section</label>
         <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgImg">
-                IMG IMG
+            <button class="btn btn-outline-primary btn-sm" wire:click="addSection(1)">
+                1 column
             </button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPP">
-                P P
+            <button class="btn btn-outline-primary btn-sm" wire:click="addSection(2)">
+                2 columns
             </button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowImgP">
-                IMG P
-            </button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowPImg">
-                P IMG
-            </button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleImg">
-                IMG
-            </button>
-            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="addRowSingleP">
-                P
+            <button class="btn btn-outline-primary btn-sm" wire:click="addSection(3)">
+                3 columns
             </button>
         </div>
     </div>
 
-    {{-- Rows --}}
-    @foreach ($rows as $rIndex => $row)
-        <div class="border p-2 mb-2">
-            <div class="d-flex gap-2 align-items-start">
+    {{-- SECTIONS --}}
+    @foreach ($sections as $sIndex => $section)
+        <div class="border rounded p-3 mb-4 bg-light">
 
-                @foreach ($row as $cIndex => $el)
-                    <div class="flex-fill border p-2">
+            {{-- SECTION HEADER --}}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong>
+                    Section {{ $sIndex + 1 }}
+                    <span class="text-muted">
+                        ({{ $section['columns'] }} columns)
+                    </span>
+                </strong>
 
-                        {{-- IMAGE BLOCK --}}
-                        @if ($el['type'] === 'img')
-                            <input type="file" class="form-control mb-2"
-                                wire:model="uploads.{{ $rIndex }}_{{ $cIndex }}">
+                <button class="btn btn-sm btn-outline-danger" wire:click="removeSection({{ $sIndex }})">
+                    Remove section
+                </button>
+            </div>
 
-                            @if (isset($uploads[$rIndex . '_' . $cIndex]))
-                                <img src="{{ $uploads[$rIndex . '_' . $cIndex]->temporaryUrl() }}"
-                                    class="img-fluid mb-2">
-                            @endif
+            {{-- COLUMNS --}}
+            <div class="row g-3">
+                @foreach ($section['columns_data'] as $cIndex => $column)
+                    <div class="col-md-{{ 12 / $section['columns'] }}">
+                        <div class="border rounded p-2 h-100 bg-white">
 
-                            <input type="text" class="form-control" placeholder="Tekst alternatywny (ALT)"
-                                wire:model.defer="rows.{{ $rIndex }}.{{ $cIndex }}.alt">
-                        @endif
+                            {{-- ADD BLOCK --}}
+                            <div class="mb-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100"
+                                        data-bs-toggle="dropdown">
+                                        + Add block
+                                    </button>
 
-                        {{-- PARAGRAPH BLOCK (TRIX) --}}
-                        @if ($el['type'] === 'p')
-                            @php
-                                $inputId = "trix_{$rIndex}_{$cIndex}";
-                            @endphp
-
-                            <input id="{{ $inputId }}" type="hidden" value="{{ $el['html'] ?? '' }}">
-
-                            <div wire:ignore>
-                                <trix-editor input="{{ $inputId }}" class="trix-content"
-                                    data-row="{{ $rIndex }}" data-col="{{ $cIndex }}"></trix-editor>
+                                    <ul class="dropdown-menu w-100">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'h1')">
+                                                H1
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'h2')">
+                                                H2
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'h3')">
+                                                H3
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'p')">
+                                                Paragraph
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'img')">
+                                                Image
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'button')">
+                                                Button
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        @endif
 
+                            {{-- BLOCKS --}}
+                            @foreach ($column as $bIndex => $block)
+                                <div class="border rounded p-2 mb-2">
+
+                                    {{-- PARAGRAPH --}}
+                                    @if ($block['type'] === 'p')
+                                        @php
+                                            $inputId = "trix_{$sIndex}_{$cIndex}_{$bIndex}";
+                                        @endphp
+
+                                        <input id="{{ $inputId }}" type="hidden"
+                                            value="{{ $block['html'] ?? '' }}">
+
+                                        <div wire:ignore>
+                                            <trix-editor input="{{ $inputId }}"
+                                                data-section="{{ $sIndex }}" data-column="{{ $cIndex }}"
+                                                data-block="{{ $bIndex }}"></trix-editor>
+                                        </div>
+                                    @endif
+
+                                    {{-- HEADERS --}}
+                                    @if (in_array($block['type'], ['h1', 'h2', 'h3']))
+                                        <input type="text" class="form-control"
+                                            placeholder="{{ strtoupper($block['type']) }}"
+                                            wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.text">
+                                    @endif
+
+                                    {{-- IMAGE --}}
+                                    @if ($block['type'] === 'img')
+                                        <input type="file" class="form-control mb-2"
+                                            wire:model="uploads.{{ $sIndex }}_{{ $cIndex }}_{{ $bIndex }}">
+
+                                        {{-- IMAGE PREVIEW --}}
+                                        @if (isset($uploads["{$sIndex}_{$cIndex}_{$bIndex}"]))
+                                            <img src="{{ $uploads["{$sIndex}_{$cIndex}_{$bIndex}"]->temporaryUrl() }}"
+                                                class="img-fluid mb-2 rounded">
+                                        @endif
+
+                                        {{-- ALT --}}
+                                        <input type="text" class="form-control" placeholder="ALT text"
+                                            wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.alt">
+                                    @endif
+
+                                    {{-- BUTTON --}}
+                                    @if ($block['type'] === 'button')
+                                        <input type="text" class="form-control mb-1" placeholder="Label"
+                                            wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.label">
+
+                                        <input type="text" class="form-control" placeholder="URL"
+                                            wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.url">
+                                    @endif
+
+                                    {{-- REMOVE BLOCK --}}
+                                    <button class="btn btn-sm btn-outline-danger mt-2"
+                                        wire:click="removeBlock({{ $sIndex }}, {{ $cIndex }}, {{ $bIndex }})">
+                                        Remove block
+                                    </button>
+
+                                </div>
+                            @endforeach
+
+                        </div>
                     </div>
                 @endforeach
-
-                <button type="button" class="btn btn-danger btn-sm" wire:click="removeRow({{ $rIndex }})">
-                    Usuń
-                </button>
-
             </div>
         </div>
     @endforeach
 
-    {{-- Save --}}
-    <button class="btn btn-success mt-3" wire:click="save">
-        💾 Zapisz
-    </button>
+    {{-- FOOTER INFO --}}
+    <div class="alert alert-secondary mt-5">
+        <strong>Footer & company details</strong><br>
+        Footer, company info, privacy policy and unsubscribe link
+        are managed in <em>Settings → Newsletter</em> and are always appended automatically.
+    </div>
 
 </div>
 
+{{-- TRIX + LIVEWIRE SYNC --}}
 @push('scripts')
     <script>
-        // Sync Trix editor content with Livewire rows array
         document.addEventListener('trix-change', function(event) {
             const editor = event.target;
-            const row = editor.dataset.row;
-            const col = editor.dataset.col;
 
-            if (row === undefined || col === undefined) return;
+            const section = editor.dataset.section;
+            const column = editor.dataset.column;
+            const block = editor.dataset.block;
+
+            if (
+                section === undefined ||
+                column === undefined ||
+                block === undefined
+            ) {
+                return;
+            }
 
             const componentEl = editor.closest('[wire\\:id]');
             if (!componentEl) return;
@@ -127,7 +230,10 @@
             const componentId = componentEl.getAttribute('wire:id');
 
             Livewire.find(componentId)
-                .set(`rows.${row}.${col}.html`, editor.value);
+                .set(
+                    `sections.${section}.columns_data.${column}.${block}.html`,
+                    editor.value
+                );
         });
 
         // Disable file uploads inside Trix editor
