@@ -64,7 +64,7 @@
                             </td>
 
                             <td>
-                                {{ is_array($newsletter->content_json) ? count($newsletter->content_json) : 0 }}
+                                {{ $newsletter->preview_text_pl ?: '—' }}
                             </td>
 
                             <td>
@@ -84,58 +84,23 @@
                             </td>
 
                             <td class="text-center">
-                                @if ($isDraft)
-                                    <span class="text-muted">—</span>
-                                @elseif ($s['opens'] === 0)
-                                    <span class="text-muted fst-italic">0</span>
-                                @else
-                                    {{ $s['opens'] }}
-                                @endif
+                                {{ $isDraft ? '—' : $s['opens'] }}
                             </td>
 
                             <td class="text-center">
-                                @if ($isDraft)
-                                    <span class="text-muted">—</span>
-                                @else
-                                    {{ $s['unique_opens'] }}
-                                @endif
+                                {{ $isDraft ? '—' : $s['unique_opens'] }}
                             </td>
 
                             <td class="text-center">
-                                @if ($isDraft)
-                                    <span class="text-muted">—</span>
-                                @elseif ($s['clicks'] === 0)
-                                    <span class="text-muted fst-italic">0</span>
-                                @else
-                                    {{ $s['clicks'] }}
-                                @endif
+                                {{ $isDraft ? '—' : $s['clicks'] }}
                             </td>
 
                             <td class="text-center">
-                                @if ($isDraft)
-                                    <span class="text-muted">—</span>
-                                @else
-                                    {{ $s['unique_clicks'] }}
-                                @endif
+                                {{ $isDraft ? '—' : $s['unique_clicks'] }}
                             </td>
 
                             <td class="text-center">
-                                @if ($isDraft)
-                                    <span class="text-muted">—</span>
-                                @else
-                                    @php
-                                        $ctrClass = match (true) {
-                                            $s['ctr'] === 0.0 => 'text-muted',
-                                            $s['ctr'] >= 20 => 'text-success fw-bold',
-                                            $s['ctr'] >= 10 => 'text-warning fw-semibold',
-                                            default => 'text-danger',
-                                        };
-                                    @endphp
-
-                                    <span class="{{ $ctrClass }}">
-                                        {{ $s['ctr'] }}%
-                                    </span>
-                                @endif
+                                {{ $isDraft ? '—' : $s['ctr'] . '%' }}
                             </td>
 
                             <td>
@@ -178,7 +143,7 @@
                                     <button class="btn btn-sm btn-outline-warning" disabled>
                                         ⏳ {{ __('livAdmNewInd.actions.sending') }}
                                     </button>
-                                @elseif ($newsletter->status === 'sent')
+                                @else
                                     <button class="btn btn-sm btn-outline-success" disabled>
                                         ✅ {{ __('livAdmNewInd.actions.sent') }}
                                     </button>

@@ -1,38 +1,38 @@
 <?php
 
 return [
-    'title' => 'Newsletters',
+    'title' => 'Newslettery',
 
-    'create' => 'Send new newsletter',
-    'createCampaign' => 'Add new campaign',
+    'create' => 'Utwórz newsletter',
+    'createCampaign' => 'Utwórz kampanię',
 
     'table' => [
         'id' => '#',
-        'subject' => 'Subject',
-        'preview' => 'Preview text',
+        'subject' => 'Temat',
+        'preview' => 'Tekst podglądu',
         'status' => 'Status',
-        'opens' => 'Opens',
-        'uniqueOpens' => 'Uniques',
-        'clicks' => 'Clicks',
-        'uniqueClicks' => 'Uniques',
+        'opens' => 'Otwarcia',
+        'uniqueOpens' => 'Unikalne',
+        'clicks' => 'Kliknięcia',
+        'uniqueClicks' => 'Unikalne',
         'ctr' => 'CTR',
-        'createdAt' => 'Created',
-        'actions' => 'Actions',
+        'createdAt' => 'Utworzono',
+        'actions' => 'Akcje',
     ],
 
     'status' => [
-        'draft' => 'draft',
-        'sending' => 'sending',
-        'sent' => 'sent',
+        'draft' => 'szkic',
+        'sending' => 'wysyłanie',
+        'sent' => 'wysłany',
     ],
 
     'actions' => [
-        'edit' => 'Edit',
+        'edit' => 'Edytuj',
         'test' => 'Test',
-        'send' => 'Send',
-        'sending' => 'SENDING',
-        'sent' => 'SENT',
+        'send' => 'Wyślij',
+        'sending' => 'WYSYŁANIE',
+        'sent' => 'WYSŁANY',
     ],
 
-    'empty' => 'No newsletters.',
+    'empty' => 'Brak newsletterów.',
 ];

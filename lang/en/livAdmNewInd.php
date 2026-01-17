@@ -3,8 +3,8 @@
 return [
     'title' => 'Newsletters',
 
-    'create' => 'Send new newsletter',
-    'createCampaign' => 'Add new campaign',
+    'create' => 'Create newsletter',
+    'createCampaign' => 'Create campaign',
 
     'table' => [
         'id' => '#',
@@ -12,9 +12,9 @@ return [
         'preview' => 'Preview text',
         'status' => 'Status',
         'opens' => 'Opens',
-        'uniqueOpens' => 'Uniques',
+        'uniqueOpens' => 'Unique opens',
         'clicks' => 'Clicks',
-        'uniqueClicks' => 'Uniques',
+        'uniqueClicks' => 'Unique clicks',
         'ctr' => 'CTR',
         'createdAt' => 'Created',
         'actions' => 'Actions',
@@ -34,5 +34,5 @@ return [
         'sent' => 'SENT',
     ],
 
-    'empty' => 'No newsletters.',
+    'empty' => 'No newsletters found.',
 ];
