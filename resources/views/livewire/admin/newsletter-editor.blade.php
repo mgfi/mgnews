@@ -2,15 +2,15 @@
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>✉️ Newsletter editor</h3>
+        <h3>✉️ {{ __('livAdmNewEdi.title') }}</h3>
 
         <div class="d-flex gap-2">
             <button class="btn btn-success" wire:click="save">
-                💾 Save
+                💾 {{ __('livAdmNewEdi.save') }}
             </button>
 
             <button class="btn btn-outline-secondary" wire:click="generate">
-                ✨ Create message
+                ✨ {{ __('livAdmNewEdi.generate') }}
             </button>
         </div>
     </div>
@@ -25,8 +25,8 @@
     {{-- SUBJECT --}}
     <div class="mb-3">
         <label class="form-label">
-            Subject
-            <span class="text-muted" title="Email subject visible in inbox">ⓘ</span>
+            {{ __('livAdmNewEdi.subject') }}
+            <span class="text-muted" title="{{ __('livAdmNewEdi.subjectHint') }}">ⓘ</span>
         </label>
         <input type="text" class="form-control" wire:model.defer="title_pl">
     </div>
@@ -34,24 +34,26 @@
     {{-- PREHEADER --}}
     <div class="mb-4">
         <label class="form-label">
-            Preview text
-            <span class="text-muted" title="Short preview next to subject">ⓘ</span>
+            {{ __('livAdmNewEdi.preview') }}
+            <span class="text-muted" title="{{ __('livAdmNewEdi.previewHint') }}">ⓘ</span>
         </label>
         <input type="text" class="form-control" wire:model.defer="preview_text_pl">
     </div>
 
     {{-- ADD SECTION --}}
     <div class="mb-4">
-        <label class="form-label fw-bold">Add section</label>
+        <label class="form-label fw-bold">
+            {{ __('livAdmNewEdi.addSection') }}
+        </label>
         <div class="d-flex gap-2 flex-wrap">
             <button class="btn btn-outline-primary btn-sm" wire:click="addSection(1)">
-                1 column
+                {{ __('livAdmNewEdi.columns.1') }}
             </button>
             <button class="btn btn-outline-primary btn-sm" wire:click="addSection(2)">
-                2 columns
+                {{ __('livAdmNewEdi.columns.2') }}
             </button>
             <button class="btn btn-outline-primary btn-sm" wire:click="addSection(3)">
-                3 columns
+                {{ __('livAdmNewEdi.columns.3') }}
             </button>
         </div>
     </div>
@@ -63,14 +65,14 @@
             {{-- SECTION HEADER --}}
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <strong>
-                    Section {{ $sIndex + 1 }}
+                    {{ __('livAdmNewEdi.section') }} {{ $sIndex + 1 }}
                     <span class="text-muted">
-                        ({{ $section['columns'] }} columns)
+                        ({{ $section['columns'] }} {{ __('livAdmNewEdi.columns.' . $section['columns']) }})
                     </span>
                 </strong>
 
                 <button class="btn btn-sm btn-outline-danger" wire:click="removeSection({{ $sIndex }})">
-                    Remove section
+                    {{ __('livAdmNewEdi.removeSection') }}
                 </button>
             </div>
 
@@ -85,7 +87,7 @@
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100"
                                         data-bs-toggle="dropdown">
-                                        + Add block
+                                        + {{ __('livAdmNewEdi.addBlock') }}
                                     </button>
 
                                     <ul class="dropdown-menu w-100">
@@ -110,19 +112,19 @@
                                         <li>
                                             <a class="dropdown-item"
                                                 wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'p')">
-                                                Paragraph
+                                                {{ __('livAdmNewEdi.blocks.paragraph') }}
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item"
                                                 wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'img')">
-                                                Image
+                                                {{ __('livAdmNewEdi.blocks.image') }}
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item"
                                                 wire:click="addBlock({{ $sIndex }}, {{ $cIndex }}, 'button')">
-                                                Button
+                                                {{ __('livAdmNewEdi.blocks.button') }}
                                             </a>
                                         </li>
                                     </ul>
@@ -145,7 +147,8 @@
                                         <div wire:ignore>
                                             <trix-editor input="{{ $inputId }}"
                                                 data-section="{{ $sIndex }}" data-column="{{ $cIndex }}"
-                                                data-block="{{ $bIndex }}"></trix-editor>
+                                                data-block="{{ $bIndex }}">
+                                            </trix-editor>
                                         </div>
                                     @endif
 
@@ -161,30 +164,30 @@
                                         <input type="file" class="form-control mb-2"
                                             wire:model="uploads.{{ $sIndex }}_{{ $cIndex }}_{{ $bIndex }}">
 
-                                        {{-- IMAGE PREVIEW --}}
                                         @if (isset($uploads["{$sIndex}_{$cIndex}_{$bIndex}"]))
                                             <img src="{{ $uploads["{$sIndex}_{$cIndex}_{$bIndex}"]->temporaryUrl() }}"
                                                 class="img-fluid mb-2 rounded">
                                         @endif
 
-                                        {{-- ALT --}}
-                                        <input type="text" class="form-control" placeholder="ALT text"
+                                        <input type="text" class="form-control"
+                                            placeholder="{{ __('livAdmNewEdi.alt') }}"
                                             wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.alt">
                                     @endif
 
                                     {{-- BUTTON --}}
                                     @if ($block['type'] === 'button')
-                                        <input type="text" class="form-control mb-1" placeholder="Label"
+                                        <input type="text" class="form-control mb-1"
+                                            placeholder="{{ __('livAdmNewEdi.label') }}"
                                             wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.label">
 
-                                        <input type="text" class="form-control" placeholder="URL"
+                                        <input type="text" class="form-control"
+                                            placeholder="{{ __('livAdmNewEdi.url') }}"
                                             wire:model.defer="sections.{{ $sIndex }}.columns_data.{{ $cIndex }}.{{ $bIndex }}.url">
                                     @endif
 
-                                    {{-- REMOVE BLOCK --}}
                                     <button class="btn btn-sm btn-outline-danger mt-2"
                                         wire:click="removeBlock({{ $sIndex }}, {{ $cIndex }}, {{ $bIndex }})">
-                                        Remove block
+                                        {{ __('livAdmNewEdi.removeBlock') }}
                                     </button>
 
                                 </div>
@@ -199,9 +202,8 @@
 
     {{-- FOOTER INFO --}}
     <div class="alert alert-secondary mt-5">
-        <strong>Footer & company details</strong><br>
-        Footer, company info, privacy policy and unsubscribe link
-        are managed in <em>Settings → Newsletter</em> and are always appended automatically.
+        <strong>{{ __('livAdmNewEdi.footerTitle') }}</strong><br>
+        {{ __('livAdmNewEdi.footerInfo') }}
     </div>
 
 </div>
@@ -216,11 +218,7 @@
             const column = editor.dataset.column;
             const block = editor.dataset.block;
 
-            if (
-                section === undefined ||
-                column === undefined ||
-                block === undefined
-            ) {
+            if (section === undefined || column === undefined || block === undefined) {
                 return;
             }
 
@@ -229,14 +227,12 @@
 
             const componentId = componentEl.getAttribute('wire:id');
 
-            Livewire.find(componentId)
-                .set(
-                    `sections.${section}.columns_data.${column}.${block}.html`,
-                    editor.value
-                );
+            Livewire.find(componentId).set(
+                `sections.${section}.columns_data.${column}.${block}.html`,
+                editor.value
+            );
         });
 
-        // Disable file uploads inside Trix editor
         document.addEventListener('trix-file-accept', function(event) {
             event.preventDefault();
         });

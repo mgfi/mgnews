@@ -8,7 +8,6 @@
 
     <title>{{ config('app.name', 'Newsletter') }}</title>
 
-    <!-- Bootstrap SCSS + JS -->
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
     @livewireStyles
@@ -31,17 +30,23 @@
                 <ul class="navbar-nav ms-auto">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
+                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                {{ __('layApp.dashboard') }}
+                            </a>
                         </li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button class="btn btn-link nav-link">Wyloguj</button>
+                                <button class="btn btn-link nav-link">
+                                    {{ __('layApp.logout') }}
+                                </button>
                             </form>
                         </li>
                     @else
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Zaloguj</a>
+                            <a class="nav-link" href="{{ route('login') }}">
+                                {{ __('layApp.login') }}
+                            </a>
                         </li>
                     @endauth
                 </ul>

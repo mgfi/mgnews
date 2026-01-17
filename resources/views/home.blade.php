@@ -4,10 +4,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
 
-            <h1 class="mb-4">Newsletter</h1>
+            <h1 class="mb-4">
+                {{ __('home.title') }}
+            </h1>
 
             <p class="lead mb-5">
-                Zapisz się do newslettera
+                {{ __('home.lead') }}
             </p>
 
             <livewire:newsletter.subscribe-form />

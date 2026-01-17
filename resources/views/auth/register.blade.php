@@ -4,7 +4,9 @@
     <div class="row justify-content-center">
         <div class="col-md-4">
 
-            <h1 class="mb-4 text-center">Rejestracja</h1>
+            <h1 class="mb-4 text-center">
+                {{ __('authReg.title') }}
+            </h1>
 
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -18,27 +20,27 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Imię</label>
+                    <label class="form-label">{{ __('authReg.name') }}</label>
                     <input type="text" name="name" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">{{ __('authReg.email') }}</label>
                     <input type="email" name="email" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Hasło</label>
+                    <label class="form-label">{{ __('authReg.password') }}</label>
                     <input type="password" name="password" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Powtórz hasło</label>
+                    <label class="form-label">{{ __('authReg.passwordConfirmation') }}</label>
                     <input type="password" name="password_confirmation" class="form-control" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                    Zarejestruj się
+                    {{ __('authReg.submit') }}
                 </button>
             </form>
 

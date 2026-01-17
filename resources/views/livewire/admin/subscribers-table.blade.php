@@ -1,6 +1,8 @@
 <div class="container">
 
-    <h3 class="mb-4">📬 Subskrybenci</h3>
+    <h3 class="mb-4">
+        📬 {{ __('livAdmSubInd.title') }}
+    </h3>
 
     @if (session()->has('success'))
         <div class="alert alert-success">
@@ -11,9 +13,11 @@
     {{-- ADD SUBSCRIBER --}}
     <div class="card mb-4">
         <div class="card-body d-flex gap-2">
-            <input type="email" class="form-control" placeholder="email@example.com" wire:model.defer="email">
+            <input type="email" class="form-control" placeholder="{{ __('livAdmSubInd.addPlaceholder') }}"
+                wire:model.defer="email">
+
             <button class="btn btn-primary" wire:click="add">
-                ➕ Dodaj
+                ➕ {{ __('livAdmSubInd.add') }}
             </button>
         </div>
     </div>
@@ -22,10 +26,10 @@
     <table class="table table-bordered align-middle">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Źródło</th>
+                <th>{{ __('livAdmSubInd.table.id') }}</th>
+                <th>{{ __('livAdmSubInd.table.email') }}</th>
+                <th>{{ __('livAdmSubInd.table.status') }}</th>
+                <th>{{ __('livAdmSubInd.table.source') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -35,9 +39,13 @@
                     <td>{{ $subscriber->email }}</td>
                     <td>
                         @if ($subscriber->is_active)
-                            <span class="badge bg-success">aktywny</span>
+                            <span class="badge bg-success">
+                                {{ __('livAdmSubInd.status.active') }}
+                            </span>
                         @else
-                            <span class="badge bg-secondary">nieaktywny</span>
+                            <span class="badge bg-secondary">
+                                {{ __('livAdmSubInd.status.inactive') }}
+                            </span>
                         @endif
                     </td>
                     <td>{{ $subscriber->source ?? '—' }}</td>
@@ -45,7 +53,7 @@
             @empty
                 <tr>
                     <td colspan="4" class="text-center text-muted">
-                        Brak subskrybentów
+                        {{ __('livAdmSubInd.empty') }}
                     </td>
                 </tr>
             @endforelse

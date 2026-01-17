@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
         <span class="navbar-brand mb-0">
-            {{ __('admin.admin_panel') }}
+            {{ __('admParNav.adminPanel') }}
         </span>
 
         <div class="d-flex align-items-center gap-3">
@@ -28,7 +28,7 @@
                             @csrf
                             <button type="submit" class="dropdown-item d-flex align-items-center gap-2">
                                 <img src="{{ asset('images/flags/en.svg') }}" width="18" height="12">
-                                {{ __('admin.language_en') }}
+                                {{ __('admParNav.languageEn') }}
                             </button>
                         </form>
                     </li>
@@ -39,7 +39,7 @@
                             @csrf
                             <button type="submit" class="dropdown-item d-flex align-items-center gap-2">
                                 <img src="{{ asset('images/flags/pl.svg') }}" width="18" height="12">
-                                {{ __('admin.language_pl') }}
+                                {{ __('admParNav.languagePl') }}
                             </button>
                         </form>
                     </li>
@@ -56,7 +56,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="btn btn-outline-light btn-sm">
-                    {{ __('admin.logout') }}
+                    {{ __('admParNav.logout') }}
                 </button>
             </form>
 

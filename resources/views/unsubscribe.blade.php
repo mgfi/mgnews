@@ -4,10 +4,13 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
 
-            <h1 class="mb-4">Zarządzanie subskrypcją</h1>
+            <h1 class="mb-4">
+                {{ __('unsubInd.title') }}
+            </h1>
 
             <p class="text-muted">
-                Adres e-mail: <strong>{{ $subscriber->email }}</strong>
+                {{ __('unsubInd.emailLabel') }}
+                <strong>{{ $subscriber->email }}</strong>
             </p>
 
             <form method="POST" action="{{ route('unsubscribe.process', $subscriber->unsubscribe_token) }}">
@@ -18,9 +21,9 @@
                         <input class="form-check-input" type="radio" name="action" id="unsubscribe" value="unsubscribe"
                             required>
                         <label class="form-check-label" for="unsubscribe">
-                            <strong>Cofam zgodę na otrzymywanie newslettera</strong><br>
+                            <strong>{{ __('unsubInd.unsubscribeTitle') }}</strong><br>
                             <small class="text-muted">
-                                (art. 7 ust. 3 RODO)
+                                {{ __('unsubInd.unsubscribeHint') }}
                             </small>
                         </label>
                     </div>
@@ -31,16 +34,16 @@
                         <input class="form-check-input" type="radio" name="action" id="erase" value="erase"
                             required>
                         <label class="form-check-label" for="erase">
-                            <strong>Żądam całkowitego usunięcia moich danych osobowych</strong><br>
+                            <strong>{{ __('unsubInd.eraseTitle') }}</strong><br>
                             <small class="text-muted">
-                                (art. 17 RODO – prawo do bycia zapomnianym)
+                                {{ __('unsubInd.eraseHint') }}
                             </small>
                         </label>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-danger">
-                    Zatwierdź wybór
+                    {{ __('unsubInd.submit') }}
                 </button>
 
             </form>

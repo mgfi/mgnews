@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="{{ app()->getLocale() }}">
+
 <head>
     <meta charset="UTF-8">
     <title>{{ $subscriber->email }}</title>
@@ -12,10 +13,12 @@
             margin: 0;
             padding: 0;
         }
+
         .wrapper {
             width: 100%;
             padding: 20px 0;
         }
+
         .container {
             max-width: 600px;
             background: #ffffff;
@@ -23,46 +26,51 @@
             padding: 24px;
             border-radius: 6px;
         }
+
         h1 {
             margin-top: 0;
         }
+
         .footer {
             margin-top: 32px;
             font-size: 12px;
             color: #666;
         }
+
         a.unsubscribe {
             color: #666;
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <div class="container">
-            <h1>{{ $issue->title_pl }}</h1>
+
+            <h1>
+                {{ app()->getLocale() === 'pl' ? $issue->title_pl : $issue->title_en }}
+            </h1>
 
             {{-- Treść newslettera --}}
             {!! $html !!}
 
             <div class="footer">
                 <p>
-                    Otrzymujesz tę wiadomość, ponieważ zapisałeś się na newsletter.
+                    {{ __('mailNewIss.reason') }}
                 </p>
 
                 <p>
                     <a class="unsubscribe" href="{{ url('/unsubscribe/' . $subscriber->unsubscribe_token) }}">
-                        Wypisz się z newslettera
+                        {{ __('mailNewIss.unsubscribe') }}
                     </a>
                 </p>
             </div>
+
         </div>
     </div>
-    <img
-    src="{{ route('newsletter.open', ['issue' => $issue->id, 'subscriber' => $subscriber->id]) }}"
-    width="1"
-    height="1"
-    alt=""
-    style="display:block;"
->
+
+    <img src="{{ route('newsletter.open', ['issue' => $issue->id, 'subscriber' => $subscriber->id]) }}" width="1"
+        height="1" alt="" style="display:block;">
 </body>
+
 </html>

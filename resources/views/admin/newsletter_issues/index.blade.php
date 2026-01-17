@@ -2,30 +2,30 @@
 
 @section('content')
 
-    <h1>Newslettery</h1>
+    <h1>{{ __('admNewIssInd.title') }}</h1>
 
     @if (session('success'))
         <div style="padding:10px;background:#d4edda;margin-bottom:10px;">
-            {{ session('success') }}
+            {{ __('admNewIssInd.success') }}
         </div>
     @endif
 
     @if (session('error'))
         <div style="padding:10px;background:#f8d7da;margin-bottom:10px;">
-            {{ session('error') }}
+            {{ __('admNewIssInd.error') }}
         </div>
     @endif
 
     @if ($issues->count() === 0)
-        <p>Brak newsletterów do wyświetlenia.</p>
+        <p>{{ __('admNewIssInd.empty') }}</p>
     @else
         <table border="1" cellpadding="8">
             <tr>
-                <th>ID</th>
-                <th>Tytuł</th>
-                <th>Temat</th>
-                <th>Status</th>
-                <th>Akcja</th>
+                <th>{{ __('admNewIssInd.table.id') }}</th>
+                <th>{{ __('admNewIssInd.table.title') }}</th>
+                <th>{{ __('admNewIssInd.table.subject') }}</th>
+                <th>{{ __('admNewIssInd.table.status') }}</th>
+                <th>{{ __('admNewIssInd.table.action') }}</th>
             </tr>
 
             @foreach ($issues as $issue)
@@ -38,7 +38,7 @@
                         @if ($issue->status === 'draft')
                             <form method="POST" action="{{ route('admin.newsletter-issues.send', $issue) }}">
                                 @csrf
-                                <button type="submit">🚀 Wyślij</button>
+                                <button type="submit">🚀 {{ __('admNewIssInd.send') }}</button>
                             </form>
                         @else
                             {{ strtoupper($issue->status) }}

@@ -4,7 +4,9 @@
     <div class="row justify-content-center">
         <div class="col-md-4">
 
-            <h1 class="mb-4 text-center">Logowanie</h1>
+            <h1 class="mb-4 text-center">
+                {{ __('authLog.title') }}
+            </h1>
 
             @if (session('status'))
                 <div class="alert alert-success">
@@ -14,7 +16,7 @@
 
             @if ($errors->any())
                 <div class="alert alert-danger">
-                    Nieprawidłowy email lub hasło
+                    {{ __('authLog.error') }}
                 </div>
             @endif
 
@@ -22,17 +24,17 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">{{ __('authLog.email') }}</label>
                     <input type="email" name="email" class="form-control" required autofocus>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Hasło</label>
+                    <label class="form-label">{{ __('authLog.password') }}</label>
                     <input type="password" name="password" class="form-control" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                    Zaloguj się
+                    {{ __('authLog.submit') }}
                 </button>
             </form>
 

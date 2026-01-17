@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin | {{ config('app.name') }}</title>
+    <title>{{ __('layAdm.title') }} | {{ config('app.name') }}</title>
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
@@ -28,12 +28,10 @@
                     @yield('content')
                 @endisset
             </main>
-
-
         </div>
     </div>
-    @livewireScripts
 
+    @livewireScripts
     @stack('scripts')
 </body>
 
