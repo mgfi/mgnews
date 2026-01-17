@@ -2,29 +2,50 @@
     <div class="container-fluid">
 
         <span class="navbar-brand mb-0">
-            Admin Panel
+            {{ __('admin.admin_panel') }}
         </span>
 
         <div class="d-flex align-items-center gap-3">
 
             {{-- LOCALE SWITCH --}}
-            <form method="POST" action="{{ route('locale.switch', '__LOCALE__') }}" id="locale-form">
-                @csrf
+            <div class="dropdown">
 
-                <select class="form-select form-select-sm" style="width:auto"
-                    onchange="
-                            const form = document.getElementById('locale-form');
-                            form.action = '{{ url('/locale') }}/' + this.value;
-                            form.submit();
-                        ">
-                    <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>
-                        🇬🇧 EN
-                    </option>
-                    <option value="pl" {{ app()->getLocale() === 'pl' ? 'selected' : '' }}>
-                        🇵🇱 PL
-                    </option>
-                </select>
-            </form>
+                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" alt="{{ app()->getLocale() }}"
+                        width="18" height="12">
+
+                    <span class="text-uppercase">
+                        {{ app()->getLocale() }}
+                    </span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+
+                    {{-- EN --}}
+                    <li>
+                        <form method="POST" action="{{ url('/locale/en') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2">
+                                <img src="{{ asset('images/flags/en.svg') }}" width="18" height="12">
+                                {{ __('admin.language_en') }}
+                            </button>
+                        </form>
+                    </li>
+
+                    {{-- PL --}}
+                    <li>
+                        <form method="POST" action="{{ url('/locale/pl') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2">
+                                <img src="{{ asset('images/flags/pl.svg') }}" width="18" height="12">
+                                {{ __('admin.language_pl') }}
+                            </button>
+                        </form>
+                    </li>
+
+                </ul>
+            </div>
 
             {{-- USER --}}
             <span class="text-white small">
@@ -35,7 +56,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="btn btn-outline-light btn-sm">
-                    Wyloguj
+                    {{ __('admin.logout') }}
                 </button>
             </form>
 

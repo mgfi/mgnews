@@ -10,21 +10,18 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-
         if (session()->has('locale')) {
             App::setLocale(session('locale'));
-            return $next($request);
+        } else {
+            $browserLocale = substr($request->getPreferredLanguage(), 0, 2);
+
+            $locale = in_array($browserLocale, ['pl', 'en'])
+                ? $browserLocale
+                : config('app.locale');
+
+            session(['locale' => $locale]);
+            App::setLocale($locale);
         }
-
-
-        $browserLocale = substr($request->getPreferredLanguage(), 0, 2);
-
-        $locale = in_array($browserLocale, ['pl', 'en'])
-            ? $browserLocale
-            : config('app.locale');
-
-        session(['locale' => $locale]);
-        App::setLocale($locale);
 
         return $next($request);
     }

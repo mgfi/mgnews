@@ -26,7 +26,20 @@ Route::get('/', function () {
         ? redirect()->route('admin.dashboard')
         : redirect()->route('login');
 });
+Route::post('/locale/{locale}', function (string $locale, Request $request) {
 
+    if (!in_array($locale, ['pl', 'en'])) {
+        abort(400);
+    }
+
+    // zapis do sesji
+    $request->session()->put('locale', $locale);
+
+    // ustawienie runtime
+    app()->setLocale($locale);
+
+    return redirect()->back();
+})->name('locale.switch');
 /*
 |--------------------------------------------------------------------------
 | AUTH – LOGOWANIE (BEZ REJESTRACJI)
