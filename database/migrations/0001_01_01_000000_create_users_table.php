@@ -17,7 +17,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+
             $table->string('password');
+
+            /**
+             * Wymuszenie zmiany hasła przy pierwszym logowaniu
+             */
+            $table->boolean('must_change_password')->default(false);
 
             /**
              * User type:
@@ -59,8 +65,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

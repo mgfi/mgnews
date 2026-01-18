@@ -14,16 +14,17 @@ class DemoUserSeeder extends Seeder
     public function run(): void
     {
         // Nie twórz ponownie jeśli już istnieje
-        if (User::where('email', 'admin@demo.pl')->exists()) {
+        if (User::where('email', 'mgfirmowy@gmail.com')->exists()) {
             return;
         }
 
         User::create([
-            'name' => 'Demo Admin',
-            'email' => 'admin@demo.pl',
-            'password' => Hash::make('password'),
-            'utype' => 'ADM',
-            'email_verified_at' => now(),
+            'name'              => 'Test Admin',
+            'email'             => 'mgfirmowy@gmail.com',
+            'password'          => Hash::make('admin1234'),
+            'utype'             => 'ADM',
+            'email_verified_at' => now(), // na razie verified, testowo
+            'must_change_password' => true, // DOBRA PRAKTYKA
         ]);
     }
 }

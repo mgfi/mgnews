@@ -15,7 +15,14 @@ use App\Http\Controllers\NewsletterOpenController;
 use App\Http\Controllers\NewsletterClickController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-
+use App\Http\Controllers\Auth\ChangePasswordController;
+/*
+|--------------------------------------------------------------------------
+| EMAIL VERIFICATION
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Auth\VerifyEmailController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 /*
 |--------------------------------------------------------------------------
 | ROOT – ENTRY POINT
@@ -102,7 +109,15 @@ Route::post('/logout', function (Request $request) {
 
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
+Route::middleware('auth')->group(function () {
 
+    Route::get('/password/change', function () {
+        return view('auth.password-change');
+    })->name('password.change');
+
+    Route::post('/password/change', [ChangePasswordController::class, 'update'])
+        ->name('password.update.force');
+});
 /*
 |--------------------------------------------------------------------------
 | PANEL ADMINA
@@ -271,7 +286,29 @@ Route::prefix('newsletter')
             }
         })->name('unsubscribe.process');
     });
+Route::middleware('auth')->group(function () {
 
+    // Screen: "Verify your email"
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    // Verify link from email
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('success', __('Email verified successfully.'));
+    })->middleware(['signed'])->name('verification.verify');
+
+    // Resend verification email
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', __('Verification link sent.'));
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});
 /*
 |--------------------------------------------------------------------------
 | POLITYKA PRYWATNOŚCI

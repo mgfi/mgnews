@@ -17,11 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
 
-        // 🔹 Global WEB middleware (zastępuje Kernel.php)
+        // 🔹 Global WEB middleware
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\ForcePasswordChange::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
