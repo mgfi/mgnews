@@ -33,9 +33,17 @@
                     <input type="password" name="password" class="form-control" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">
+                <button type="submit" class="btn btn-primary w-100 mb-3">
                     {{ __('authLog.submit') }}
                 </button>
+
+                @if (Route::has('password.request'))
+                    <div class="text-center">
+                        <a href="{{ route('password.request') }}">
+                            {{ __('authLog.forgot_password') }}
+                        </a>
+                    </div>
+                @endif
             </form>
 
         </div>

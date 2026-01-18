@@ -1,12 +1,10 @@
 <?php
 
 return [
-    'title' => 'Logowanie',
-
-    'email'    => 'Email',
-    'password' => 'Hasło',
-
-    'submit' => 'Zaloguj się',
-
-    'error' => 'Nieprawidłowy email lub hasło.',
+    'title'            => 'Logowanie',
+    'email'            => 'Adres e-mail',
+    'password'         => 'Hasło',
+    'submit'           => 'Zaloguj się',
+    'forgot_password'  => 'Nie pamiętasz hasła?',
+    'error'            => 'Podany email lub hasło są nieprawidłowe.',
 ];
