@@ -36,6 +36,9 @@ return new class extends Migration
                 ->constrained()
                 ->nullOnDelete();
 
+            // DEMO flag (ważne dla seedów i statystyk)
+            $table->boolean('is_demo')->default(false)->index();
+
             // systemowe
             $table->timestamps();
             $table->softDeletes();

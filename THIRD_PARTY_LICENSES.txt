@@ -1,0 +1,72 @@
+========================================
+THIRD-PARTY LICENSES
+========================================
+
+This product includes third-party open-source software.
+All third-party packages are used in compliance with their respective licenses.
+
+All multi-licensed packages are used under the BSD-3-Clause or MIT licenses.
+No GPL or AGPL licensed code is used as a dependency of this product.
+
+----------------------------------------
+ENGLISH
+----------------------------------------
+
+This product includes third-party open-source software licensed under
+MIT, BSD-3-Clause, and Apache-2.0 licenses.
+
+Multi-licensed packages (such as "nette/schema" and "nette/utils")
+are used under the BSD-3-Clause license.
+
+List of notable third-party packages:
+
+- Laravel Framework – MIT License
+- Symfony Components – MIT License
+- Livewire – MIT License
+- Chart.js – MIT License
+- nette/schema – BSD-3-Clause License
+- nette/utils – BSD-3-Clause License
+
+----------------------------------------
+POLSKI
+----------------------------------------
+
+Ten produkt zawiera oprogramowanie open source firm trzecich,
+wykorzystywane zgodnie z warunkami odpowiednich licencji.
+
+Pakiety wielolicencyjne (takie jak „nette/schema” oraz „nette/utils”)
+są używane na licencji BSD-3-Clause.
+
+Produkt NIE wykorzystuje żadnych zależności objętych licencją GPL
+ani AGPL.
+
+Lista wybranych komponentów zewnętrznych:
+
+- Laravel Framework – licencja MIT
+- Symfony Components – licencja MIT
+- Livewire – licencja MIT
+- Chart.js – licencja MIT
+- nette/schema – licencja BSD-3-Clause
+- nette/utils – licencja BSD-3-Clause
+
+----------------------------------------
+DEUTSCH
+----------------------------------------
+
+Dieses Produkt enthält Open-Source-Software von Drittanbietern,
+die gemäß den jeweiligen Lizenzbedingungen verwendet wird.
+
+Mehrfach lizenzierte Pakete (wie „nette/schema“ und „nette/utils“)
+werden unter der BSD-3-Clause-Lizenz verwendet.
+
+Dieses Produkt verwendet KEINE Abhängigkeiten,
+die unter der GPL- oder AGPL-Lizenz stehen.
+
+Ausgewählte Drittanbieter-Komponenten:
+
+- Laravel Framework – MIT-Lizenz
+- Symfony-Komponenten – MIT-Lizenz
+- Livewire – MIT-Lizenz
+- Chart.js – MIT-Lizenz
+- nette/schema – BSD-3-Clause-Lizenz
+- nette/utils – BSD-3-Clause-Lizenz
