@@ -12,7 +12,7 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            DemoUserSeeder::class,
+
             DemoSubscriberSeeder::class,
             DemoNewsletterSeeder::class,
             DemoEngagementSeeder::class,

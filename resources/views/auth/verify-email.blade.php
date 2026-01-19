@@ -5,11 +5,11 @@
         <div class="col-md-4 text-center">
 
             <h1 class="mb-3">
-                Verify your email
+                {{ __('authVer.title') }}
             </h1>
 
             <p class="mb-4">
-                Please verify your email address by clicking the link we sent to you.
+                {{ __('authVer.description') }}
             </p>
 
             @if (session('success'))
@@ -21,7 +21,7 @@
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
                 <button class="btn btn-primary w-100">
-                    Resend verification email
+                    {{ __('authVer.resend') }}
                 </button>
             </form>
 

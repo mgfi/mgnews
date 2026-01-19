@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use App\Models\Subscriber;
 use App\Models\NewsletterSetting;
@@ -16,18 +17,11 @@ use App\Http\Controllers\NewsletterClickController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ChangePasswordController;
-/*
-|--------------------------------------------------------------------------
-| EMAIL VERIFICATION
-|--------------------------------------------------------------------------
-*/
-use App\Http\Controllers\Auth\VerifyEmailController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 /*
 |--------------------------------------------------------------------------
 | ROOT – ENTRY POINT
 |--------------------------------------------------------------------------
-| Jeden punkt wejścia, brak pętli redirectów
 */
 
 Route::get('/', function () {
@@ -35,24 +29,48 @@ Route::get('/', function () {
         ? redirect()->route('admin.dashboard')
         : redirect()->route('login');
 });
+
+/*
+|--------------------------------------------------------------------------
+| LOCALE SWITCH
+|--------------------------------------------------------------------------
+*/
 Route::post('/locale/{locale}', function (string $locale, Request $request) {
+    abort_unless(in_array($locale, ['pl', 'en']), 400);
 
-    if (!in_array($locale, ['pl', 'en'])) {
-        abort(400);
-    }
-
-    // zapis do sesji
     $request->session()->put('locale', $locale);
-
-    // ustawienie runtime
     app()->setLocale($locale);
 
     return redirect()->back();
 })->name('locale.switch');
 
-
-
+/*
+|--------------------------------------------------------------------------
+| AUTH – GUEST
+|--------------------------------------------------------------------------
+*/
 Route::middleware('guest')->group(function () {
+
+    // Login
+    Route::get('/login', fn() => view('auth.login'))->name('login');
+
+    Route::post('/login', function (Request $request) {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => __('auth.failed'),
+        ]);
+    });
+
+    // Password reset
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
         ->name('password.request');
 
@@ -68,102 +86,85 @@ Route::middleware('guest')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| AUTH – LOGOWANIE (BEZ REJESTRACJI)
-|--------------------------------------------------------------------------
-*/
-Route::middleware('guest')->group(function () {
-
-    Route::get('/login', function () {
-        return view('auth.login');
-    })->name('login');
-
-    Route::post('/login', function (Request $request) {
-
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('admin.dashboard');
-        }
-
-        return back()->withErrors([
-            'email' => 'Nieprawidłowy email lub hasło.',
-        ]);
-    });
-});
-
-/*
-|--------------------------------------------------------------------------
-| AUTH – WYLOGOWANIE
+| AUTH – LOGOUT
 |--------------------------------------------------------------------------
 */
 Route::post('/logout', function (Request $request) {
-
     Auth::logout();
-
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| AUTH – AUTHENTICATED USER
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth')->group(function () {
 
-    Route::get('/password/change', function () {
-        return view('auth.password-change');
-    })->name('password.change');
+    // Force password change
+    Route::get('/password/change', fn() => view('auth.password-change'))
+        ->name('password.change');
 
     Route::post('/password/change', [ChangePasswordController::class, 'update'])
         ->name('password.update.force');
+
+    /*
+    |--------------------------------------------------------------------------
+    | EMAIL VERIFICATION
+    |--------------------------------------------------------------------------
+    */
+
+    // Notice
+    Route::get('/email/verify', fn() => view('auth.verify-email'))
+        ->name('verification.notice');
+
+    // Verify link
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect()
+            ->route('install.demo')
+            ->with('success', __('authVer.verified'));
+    })
+        ->middleware('signed')
+        ->name('verification.verify');
+
+    // Resend
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', __('authVer.sent'));
+    })
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 });
+
 /*
 |--------------------------------------------------------------------------
-| PANEL ADMINA
+| ADMIN PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', 'verified', 'admin'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
 
-        /*
-        |-------------------------
-        | DASHBOARD
-        |-------------------------
-        */
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', fn() => view('admin.dashboard'))
+            ->name('dashboard');
 
-        /*
-        |-------------------------
-        | SUBSCRIBERS
-        |-------------------------
-        */
-        Route::get('/subscribers', function () {
-            return view('admin.subscribers.index');
-        })->name('subscribers.index');
+        Route::get('/subscribers', fn() => view('admin.subscribers.index'))
+            ->name('subscribers.index');
 
-        /*
-        |-------------------------
-        | NEWSLETTERS
-        |-------------------------
-        */
         Route::get('/newsletters', NewsletterIndex::class)
             ->name('newsletters.index');
 
         Route::get('/newsletters/{newsletter}/edit-content', NewsletterEditor::class)
             ->name('newsletters.edit');
 
-        /*
-        |-------------------------
-        | SETTINGS (PL / EN)
-        |-------------------------
-        */
         Route::get('/settings', function () {
-
             return view('admin.settings.index', [
                 'settingsPl' => NewsletterSetting::firstOrCreate(
                     ['locale' => 'pl'],
@@ -177,7 +178,6 @@ Route::middleware(['auth', 'admin'])
         })->name('settings.index');
 
         Route::post('/settings', function (Request $request) {
-
             $data = $request->validate([
                 'pl.company_name'    => 'required|string|max:255',
                 'pl.company_address' => 'nullable|string',
@@ -205,115 +205,124 @@ Route::middleware(['auth', 'admin'])
 
 /*
 |--------------------------------------------------------------------------
-| NEWSLETTER – PUBLIC (OPEN / CLICK / UNSUBSCRIBE)
+| NEWSLETTER – PUBLIC
 |--------------------------------------------------------------------------
-| Publiczne, bez logowania
 */
-Route::prefix('newsletter')
-    ->as('newsletter.')
-    ->group(function () {
+Route::prefix('newsletter')->as('newsletter.')->group(function () {
 
-        /*
-        |-------------------------
-        | UNSUBSCRIBE FORM
-        |-------------------------
-        */
-        Route::get('/unsubscribe/{token}', function (string $token) {
+    Route::get('/unsubscribe/{token}', function (string $token) {
+        $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
+        return view('unsubscribe', compact('subscriber'));
+    })->name('unsubscribe.form');
 
-            $subscriber = Subscriber::where('unsubscribe_token', $token)
-                ->firstOrFail();
+    Route::get('/open/{issue}/{subscriber?}', [NewsletterOpenController::class, 'open'])
+        ->name('open');
 
-            return view('unsubscribe', compact('subscriber'));
-        })->name('unsubscribe.form');
+    Route::get('/click/{hash}', [NewsletterClickController::class, 'click'])
+        ->name('click');
 
-        /*
-        |-------------------------
-        | OPEN TRACKING
-        |-------------------------
-        */
-        Route::get('/open/{issue}/{subscriber?}', [NewsletterOpenController::class, 'open'])
-            ->name('open');
+    Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
+        $subscriber = Subscriber::where('unsubscribe_token', $token)->firstOrFail();
 
-        /*
-        |-------------------------
-        | CLICK TRACKING
-        |-------------------------
-        */
-        Route::get('/click/{hash}', [NewsletterClickController::class, 'click'])
-            ->name('click');
+        $request->validate([
+            'action' => ['required', 'in:unsubscribe,erase'],
+        ]);
 
-        /*
-        |-------------------------
-        | UNSUBSCRIBE / ERASE (POST)
-        |-------------------------
-        */
-        Route::post('/unsubscribe/{token}', function (string $token, Request $request) {
-
-            $subscriber = Subscriber::where('unsubscribe_token', $token)
-                ->firstOrFail();
-
-            $request->validate([
-                'action' => ['required', 'in:unsubscribe,erase'],
+        if ($request->action === 'unsubscribe') {
+            $subscriber->update([
+                'is_active'       => false,
+                'unsubscribed_at' => now(),
             ]);
 
-            // ART. 7 ust. 3 RODO — COFNIĘCIE ZGODY
-            if ($request->action === 'unsubscribe') {
+            return view('unsubscribe-confirmation', [
+                'message' => 'Zostałeś wypisany z newslettera.',
+            ]);
+        }
 
-                $subscriber->update([
-                    'is_active'       => false,
-                    'unsubscribed_at' => now(),
-                ]);
+        DB::table('gdpr_erased_records')->insert([
+            'email_hash' => hash('sha256', $subscriber->email),
+            'erased_at'  => now(),
+            'source'     => 'newsletter',
+        ]);
 
-                return view('unsubscribe-confirmation', [
-                    'message' => 'Zostałeś wypisany z newslettera.',
-                ]);
-            }
+        $subscriber->delete();
 
-            // ART. 17 RODO — PRAWO DO BYCIA ZAPOMNIANYM
-            if ($request->action === 'erase') {
-
-                DB::table('gdpr_erased_records')->insert([
-                    'email_hash' => hash('sha256', $subscriber->email),
-                    'erased_at'  => now(),
-                    'source'     => 'newsletter',
-                ]);
-
-                $subscriber->delete();
-
-                return view('unsubscribe-confirmation', [
-                    'message' => 'Twoje dane zostały trwale usunięte z systemu.',
-                ]);
-            }
-        })->name('unsubscribe.process');
-    });
-Route::middleware('auth')->group(function () {
-
-    // Screen: "Verify your email"
-    Route::get('/email/verify', function () {
-        return view('auth.verify-email');
-    })->name('verification.notice');
-
-    // Verify link from email
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-
-        return redirect()
-            ->route('admin.dashboard')
-            ->with('success', __('Email verified successfully.'));
-    })->middleware(['signed'])->name('verification.verify');
-
-    // Resend verification email
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-
-        return back()->with('success', __('Verification link sent.'));
-    })->middleware(['throttle:6,1'])->name('verification.send');
+        return view('unsubscribe-confirmation', [
+            'message' => 'Twoje dane zostały trwale usunięte z systemu.',
+        ]);
+    })->name('unsubscribe.process');
 });
+
 /*
 |--------------------------------------------------------------------------
-| POLITYKA PRYWATNOŚCI
+| PRIVACY POLICY
 |--------------------------------------------------------------------------
 */
-Route::get('/polityka-prywatnosci', function () {
-    return view('privacy-policy');
-})->name('privacy.policy');
+Route::get('/polityka-prywatnosci', fn() => view('privacy-policy'))
+    ->name('privacy.policy');
+Route::get('/install/admin', function () {
+    return view('install.admin');
+})->name('install.admin');
+Route::post('/install/admin', function (Request $request) {
+
+    $data = $request->validate([
+        'email'    => ['required', 'email', 'unique:users,email'],
+        'password' => ['required', 'min:8', 'confirmed'],
+    ]);
+
+    $user = \App\Models\User::create([
+        'name'     => 'Administrator',
+        'email'    => $data['email'],
+        'password' => $data['password'],
+        'role'     => 'ADMIN',
+    ]);
+
+    Auth::login($user);
+
+    return redirect()->route('verification.notice');
+})->name('install.admin.store');
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/install/demo', function () {
+        return view('install.demo');
+    })->name('install.demo');
+
+    Route::post('/install/demo', function (Request $request) {
+
+        if ($request->boolean('load_demo')) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => 'DemoDataSeeder',
+                '--force' => true,
+            ]);
+        }
+
+        return redirect()->route('install.settings');
+    })->name('install.demo.store');
+});
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/install/settings', function () {
+        return view('install.settings');
+    })->name('install.settings');
+
+    Route::post('/install/settings', function (Request $request) {
+
+        $data = $request->validate([
+            'company_name'  => ['required', 'string', 'max:255'],
+            'system_email'  => ['required', 'email'],
+            'default_locale' => ['required', 'in:pl,en'],
+        ]);
+
+        \App\Models\NewsletterSetting::updateOrCreate(
+            ['locale' => $data['default_locale']],
+            [
+                'company_name'  => $data['company_name'],
+                'company_email' => $data['system_email'],
+            ]
+        );
+
+        cache()->put('app_settings_completed', true);
+
+        return redirect()->route('install.finish');
+    })->name('install.settings.store');
+});
