@@ -35,7 +35,7 @@ class ResetPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
-                ])->save();
+                ])->save(); 
 
                 Log::info('Password reset', [
                     'user_id' => $user->id,
