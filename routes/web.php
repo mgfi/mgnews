@@ -202,6 +202,35 @@ Route::middleware(['auth', 'verified', 'admin'])
 
             return back()->with('success', 'Settings saved');
         })->name('settings.save');
+        /*
+|--------------------------------------------------------------------------
+| USERS (OPERATORS)
+|--------------------------------------------------------------------------
+*/
+
+        Route::get('/users/create', function () {
+            return view('admin.users.create');
+        })->name('users.create');
+
+        Route::post('/users', function (Request $request) {
+
+            $data = $request->validate([
+                'email' => ['required', 'email', 'unique:users,email'],
+            ]);
+
+            \App\Models\User::create([
+                'name'     => 'Operator',
+                'email'    => $data['email'],
+                'password' => \Illuminate\Support\Facades\Hash::make(
+                    \Illuminate\Support\Str::random(32)
+                ),
+                'role'     => 'USR',
+            ]);
+
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('success', 'Operator created.');
+        })->name('users.store');
     });
 
 /*
