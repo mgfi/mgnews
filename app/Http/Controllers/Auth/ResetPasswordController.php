@@ -35,7 +35,7 @@ class ResetPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
-                ])->save(); 
+                ])->save();
 
                 Log::info('Password reset', [
                     'user_id' => $user->id,
@@ -46,7 +46,9 @@ class ResetPasswordController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __('Password reset successfully.'))
+            ? redirect()
+            ->route('login')
+            ->with('success', __('passwords.reset'))
             : back()->withErrors(['email' => __($status)]);
     }
 }
