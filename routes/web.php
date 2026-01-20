@@ -62,6 +62,9 @@ Route::middleware('guest')->group(function () {
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            \App\Services\AuditLogger::log('login');
+
             return redirect()->route('admin.dashboard');
         }
 
@@ -91,6 +94,9 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/logout', function (Request $request) {
+
+    \App\Services\AuditLogger::log('logout');
+
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
@@ -208,17 +214,13 @@ Route::middleware(['auth', 'verified', 'admin'])
 |--------------------------------------------------------------------------
 */
 
-        Route::get('/users/create', function () {
-            return view('admin.users.create');
-        })->name('users.create');
-
         Route::post('/users', function (Request $request) {
 
             $data = $request->validate([
                 'email' => ['required', 'email', 'unique:users,email'],
             ]);
 
-            \App\Models\User::create([
+            $user = \App\Models\User::create([
                 'name'     => 'Operator',
                 'email'    => $data['email'],
                 'password' => \Illuminate\Support\Facades\Hash::make(
@@ -227,12 +229,17 @@ Route::middleware(['auth', 'verified', 'admin'])
                 'role'     => 'USR',
             ]);
 
+            \App\Services\AuditLogger::log(
+                'create_operator',
+                'User',
+                ['email' => $user->email]
+            );
+
             return redirect()
                 ->route('admin.dashboard')
                 ->with('success', 'Operator created.');
         })->name('users.store');
     });
-
 /*
 |--------------------------------------------------------------------------
 | NEWSLETTER – PUBLIC
@@ -356,6 +363,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('install.finish');
     })->name('install.settings.store');
 });
+/*
+|--------------------------------------------------------------------------
+| INVITE ACCEPT (OPERATOR FIRST LOGIN)
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/invite/accept/{token}', function (string $token) {
 
     $user = \App\Models\User::where('invite_token', $token)->firstOrFail();
@@ -365,3 +378,34 @@ Route::get('/invite/accept/{token}', function (string $token) {
         'email' => $user->email,
     ]);
 })->name('invite.accept');
+
+
+Route::post('/invite/accept', function (Request $request) {
+
+    $data = $request->validate([
+        'token'    => ['required'],
+        'password' => ['required', 'confirmed', 'min:8'],
+    ]);
+
+    $user = \App\Models\User::where('invite_token', $data['token'])
+        ->firstOrFail();
+
+    $user->forceFill([
+        'password'           => \Illuminate\Support\Facades\Hash::make($data['password']),
+        'invite_token'       => null,
+        'invite_sent_at'     => null,
+        'email_verified_at'  => now(),
+    ])->save();
+
+    \App\Services\AuditLogger::log(
+        'accept_invite',
+        'User',
+        ['email' => $user->email]
+    );
+
+    Auth::login($user);
+
+    return redirect()
+        ->route('admin.dashboard')
+        ->with('success', 'Welcome!');
+})->name('invite.accept.store');
