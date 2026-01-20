@@ -356,3 +356,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('install.finish');
     })->name('install.settings.store');
 });
+Route::get('/invite/accept/{token}', function (string $token) {
+
+    $user = \App\Models\User::where('invite_token', $token)->firstOrFail();
+
+    return view('auth.invite-accept', [
+        'token' => $token,
+        'email' => $user->email,
+    ]);
+})->name('invite.accept');

@@ -29,11 +29,14 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto">
                     @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                                {{ __('layApp.dashboard') }}
-                            </a>
-                        </li>
+                        @if (auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                    {{ __('layApp.dashboard') }}
+                                </a>
+                            </li>
+                        @endif
+
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -42,13 +45,8 @@
                                 </button>
                             </form>
                         </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">
-                                {{ __('layApp.login') }}
-                            </a>
-                        </li>
                     @endauth
+
                 </ul>
             </div>
         </div>
