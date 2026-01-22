@@ -1,5 +1,12 @@
 <?php
 
 return [
-    'title' => 'Admin',
+    'title' => 'Panel administracyjny',
+
+    'nav' => [
+        'dashboard'   => 'Dashboard',
+        'subscribers' => 'Subskrybenci',
+        'newsletters' => 'Newslettery',
+        'settings'    => 'Ustawienia',
+    ],
 ];

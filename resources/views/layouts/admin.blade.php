@@ -18,7 +18,7 @@
     <div class="container-fluid">
         <div class="row">
             <aside class="col-md-2 p-0 bg-white border-end min-vh-100">
-                @include('admin.partials.sidebar')
+                @include('partials.adminSidebar')
             </aside>
 
             <main class="col-md-10 p-4">

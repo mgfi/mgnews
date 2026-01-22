@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-
+use App\Models\User;
 use App\Models\Subscriber;
 use App\Models\NewsletterSetting;
 
@@ -87,6 +87,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
         ->name('password.update');
 });
+Route::get('/password/reset/success', fn() => view('auth.password-reset-success'))
+    ->name('password.reset.success');
 
 /*
 |--------------------------------------------------------------------------
@@ -154,21 +156,25 @@ Route::middleware('auth')->group(function () {
 | ADMIN PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified', 'admin'])
+Route::middleware(['auth', 'verified'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
 
         Route::get('/dashboard', fn() => view('admin.dashboard'))
+            ->middleware('permission:view_dashboard')
             ->name('dashboard');
 
         Route::get('/subscribers', fn() => view('admin.subscribers.index'))
+            ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
         Route::get('/newsletters', NewsletterIndex::class)
+            ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
 
         Route::get('/newsletters/{newsletter}/edit-content', NewsletterEditor::class)
+            ->middleware('permission:newsletter_edit')
             ->name('newsletters.edit');
 
         Route::get('/settings', function () {
@@ -182,7 +188,9 @@ Route::middleware(['auth', 'verified', 'admin'])
                     ['company_name' => '']
                 ),
             ]);
-        })->name('settings.index');
+        })
+            ->middleware('permission:settings_view')
+            ->name('settings.index');
 
         Route::post('/settings', function (Request $request) {
             $data = $request->validate([
@@ -207,39 +215,92 @@ Route::middleware(['auth', 'verified', 'admin'])
             }
 
             return back()->with('success', 'Settings saved');
-        })->name('settings.save');
+        })
+            ->middleware('permission:settings_update')
+            ->name('settings.save');
+
         /*
-|--------------------------------------------------------------------------
-| USERS (OPERATORS)
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | USERS (OPERATORS)
+        |--------------------------------------------------------------------------
+        */
+        Route::middleware('admin')->group(function () {
 
-        Route::post('/users', function (Request $request) {
+            Route::post('/users', function (Request $request) {
 
-            $data = $request->validate([
-                'email' => ['required', 'email', 'unique:users,email'],
-            ]);
+                $data = $request->validate([
+                    'email'        => ['required', 'email', 'unique:users,email'],
+                    'permissions'  => ['nullable', 'array'],
+                    'permissions.*' => ['string'],
+                ]);
 
-            $user = \App\Models\User::create([
-                'name'     => 'Operator',
-                'email'    => $data['email'],
-                'password' => \Illuminate\Support\Facades\Hash::make(
-                    \Illuminate\Support\Str::random(32)
-                ),
-                'role'     => 'USR',
-            ]);
+                $user = \App\Models\User::create([
+                    'name'     => 'Operator',
+                    'email'    => $data['email'],
+                    'password' => \Illuminate\Support\Facades\Hash::make(
+                        \Illuminate\Support\Str::random(32)
+                    ),
+                    'utype'    => 'USR',
+                    'permissions' => $data['permissions'] ?? [],
+                ]);
 
-            \App\Services\AuditLogger::log(
-                'create_operator',
-                'User',
-                ['email' => $user->email]
-            );
+                \App\Services\AuditLogger::log(
+                    'create_operator',
+                    'User',
+                    [
+                        'email' => $user->email,
+                        'permissions' => $user->permissions,
+                    ]
+                );
 
-            return redirect()
-                ->route('admin.dashboard')
-                ->with('success', 'Operator created.');
-        })->name('users.store');
+                return redirect()
+                    ->route('admin.dashboard')
+                    ->with('success', 'Operator created.');
+            })->name('users.store');
+            Route::get('/users/{user}/edit', function (\App\Models\User $user) {
+                return view('admin.users.edit', compact('user'));
+            })->name('users.edit');
+
+            Route::put('/users/{user}', function (Request $request, \App\Models\User $user) {
+
+                $data = $request->validate([
+                    'permissions'   => ['nullable', 'array'],
+                    'permissions.*' => ['string'],
+                    'is_active'     => ['nullable', 'boolean'],
+                ]);
+
+                $user->update([
+                    'permissions' => $data['permissions'] ?? [],
+                    'is_active'   => $request->boolean('is_active'),
+                ]);
+
+                \App\Services\AuditLogger::log(
+                    'update_operator',
+                    'User',
+                    [
+                        'email' => $user->email,
+                        'permissions' => $user->permissions,
+                        'is_active' => $user->is_active,
+                    ]
+                );
+
+                return redirect()
+                    ->route('admin.dashboard')
+                    ->with('success', 'Operator updated.');
+            })->name('users.update');
+        });
     });
+Route::middleware(['auth', 'verified'])
+    ->get('/operator/dashboard', function () {
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        abort_unless($user->isOperator(), 403);
+
+        return view('operator.dashboard');
+    })
+    ->name('operator.dashboard');
 /*
 |--------------------------------------------------------------------------
 | NEWSLETTER – PUBLIC

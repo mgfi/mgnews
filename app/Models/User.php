@@ -9,25 +9,23 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Mass assignable
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',
+        'utype',
+        'permissions',
+        'created_by',
+        'must_change_password',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Hidden attributes
      */
     protected $hidden = [
         'password',
@@ -35,29 +33,60 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-    // Roles
-    public const ROLE_ADMIN = 'ADMIN';
-    public const ROLE_USER  = 'USR';
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'permissions'       => 'array',
+        'must_change_password' => 'boolean',
+    ];
 
-    // Helpers
+    /*
+    |--------------------------------------------------------------------------
+    | User types
+    |--------------------------------------------------------------------------
+    */
+    public const TYPE_ADMIN = 'ADM';
+    public const TYPE_USER  = 'USR';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
     public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->utype === self::TYPE_ADMIN;
     }
 
     public function isOperator(): bool
     {
-        return $this->role === self::ROLE_USER;
+        return $this->utype === self::TYPE_USER;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permissions
+    |--------------------------------------------------------------------------
+    */
+    public function hasPermission(string $permission): bool
+    {
+        // Admin ma wszystko
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return in_array($permission, $this->permissions ?? [], true);
+    }
+
+    public function givePermissions(array $permissions): void
+    {
+        $this->permissions = array_values(array_unique($permissions));
+        $this->save();
+    }
+    public function isActive(): bool
+    {
+        return (bool) $this->is_active;
     }
 }

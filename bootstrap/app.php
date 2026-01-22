@@ -16,8 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin'         => \App\Http\Middleware\AdminMiddleware::class,
             'not.installed' => \App\Http\Middleware\EnsureNotInstalled::class,
+            'permission'    => \App\Http\Middleware\CheckPermission::class,
         ]);
-
 
         // 🔹 Global WEB middleware
         $middleware->web(append: [
@@ -25,7 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\ForcePasswordChange::class,
         ]);
     })
-
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
