@@ -2,55 +2,89 @@
 COMMERCIAL SOFTWARE LICENSE
 ========================================
 
+IMPORTANT:
+In case of any discrepancies or differences in interpretation,
+the POLISH version of this license shall be legally binding
+and shall prevail over other language versions.
+
+----------------------------------------
+POLSKI (WERSJA WIĄŻĄCA)
+----------------------------------------
+
+To oprogramowanie jest licencjonowane, a nie sprzedawane.
+
+Poprzez zakup, instalację lub korzystanie z niniejszego oprogramowania
+otrzymujesz niewyłączną i nieprzenoszalną licencję na jego używanie
+zgodnie z poniższymi warunkami.
+
+DEFINICJE:
+„Jedno środowisko produkcyjne” oznacza jeden serwer lub jedną instancję
+hostingową wykorzystywaną przez jedną organizację.
+
+MOŻESZ:
+- Używać oprogramowania do celów prywatnych lub komercyjnych
+- Modyfikować oprogramowanie wyłącznie na własne potrzeby wewnętrzne
+- Zainstalować i uruchomić oprogramowanie w jednym środowisku
+  produkcyjnym na jedną zakupioną licencję
+
+NIE MOŻESZ:
+- Rozpowszechniać oprogramowania ani jego kodu źródłowego
+- Odsprzedawać, sublicencjonować, wynajmować ani udostępniać
+  oprogramowania osobom trzecim
+- Publikować oprogramowania jako produktu konkurencyjnego
+- Oferować oprogramowania jako usługi SaaS, PaaS, hostowanej
+  lub w modelu subskrypcyjnym bez wyraźnej pisemnej zgody autora
+- Usuwać, modyfikować lub ukrywać informacji o autorze
+  oraz prawach autorskich
+
+WSPARCIE I AKTUALIZACJE:
+Licencja nie obejmuje wsparcia technicznego, aktualizacji ani utrzymania,
+chyba że zostało to wyraźnie określone w odrębnej umowie lub ofercie.
+
+GWARANCJA I ODPOWIEDZIALNOŚĆ:
+Oprogramowanie jest dostarczane w stanie „takim, jakim jest”,
+bez jakiejkolwiek gwarancji, wyraźnej lub dorozumianej.
+
+Autor nie ponosi odpowiedzialności za jakiekolwiek szkody,
+straty danych, utracone korzyści ani inne konsekwencje wynikające
+z korzystania lub niemożności korzystania z oprogramowania.
+
 ----------------------------------------
 ENGLISH
 ----------------------------------------
 
 This software is licensed, not sold.
 
-By purchasing or using this software, you are granted a non-exclusive,
-non-transferable license to use the software under the terms below.
+By purchasing, installing, or using this software, you are granted
+a non-exclusive, non-transferable license to use the software
+under the terms described below.
 
-You MAY:
+DEFINITIONS:
+“One production environment” means a single server or hosting instance
+used by one organization.
+
+YOU MAY:
 - Use the software for personal or commercial purposes
 - Modify the software for your own internal use
-- Install and run the software on one production environment per license
+- Install and run the software in one production environment
+  per purchased license
 
-You MAY NOT:
+YOU MAY NOT:
 - Redistribute the software or its source code
-- Resell, sublicense, or share the software
+- Resell, sublicense, rent, or share the software
 - Publish the software as a competing product
-- Offer the software as a SaaS or hosted service without explicit permission
+- Offer the software as a SaaS, PaaS, or hosted service
+  without explicit written permission from the author
+- Remove or obscure copyright or author attribution
 
-This software is provided "as is", without warranty of any kind.
-The author is not liable for any damages arising from the use of this software.
+SUPPORT AND UPDATES:
+This license does not include support, updates, or maintenance
+unless explicitly stated otherwise.
 
-----------------------------------------
-POLSKI
-----------------------------------------
-
-To oprogramowanie jest licencjonowane, a nie sprzedawane.
-
-Poprzez zakup lub korzystanie z tego oprogramowania otrzymujesz
-niewyłączną i nieprzenoszalną licencję na jego używanie
-zgodnie z poniższymi warunkami.
-
-MOŻESZ:
-- Używać oprogramowania do celów prywatnych lub komercyjnych
-- Modyfikować oprogramowanie na własne potrzeby
-- Zainstalować i uruchomić oprogramowanie w jednym środowisku produkcyjnym
-  na jedną licencję
-
-NIE MOŻESZ:
-- Rozpowszechniać oprogramowania ani jego kodu źródłowego
-- Odsprzedawać, sublicencjonować ani udostępniać oprogramowania
-- Publikować oprogramowania jako produktu konkurencyjnego
-- Oferować oprogramowania jako usługi SaaS lub hostowanej
-  bez wyraźnej zgody autora
-
-Oprogramowanie jest dostarczane w stanie „takim, jakim jest”,
-bez jakiejkolwiek gwarancji.
-Autor nie ponosi odpowiedzialności za szkody wynikające z jego użycia.
+DISCLAIMER:
+The software is provided “as is”, without warranty of any kind.
+The author shall not be liable for any damages arising from the use
+or inability to use the software.
 
 ----------------------------------------
 DEUTSCH
@@ -58,24 +92,35 @@ DEUTSCH
 
 Diese Software wird lizenziert, nicht verkauft.
 
-Mit dem Kauf oder der Nutzung dieser Software erhalten Sie eine
-nicht-exklusive und nicht übertragbare Lizenz zur Nutzung
-unter den folgenden Bedingungen.
+Durch den Kauf, die Installation oder die Nutzung dieser Software
+erhalten Sie eine nicht-exklusive und nicht übertragbare Lizenz
+zur Nutzung gemäß den folgenden Bedingungen.
+
+DEFINITIONEN:
+„Eine produktive Umgebung“ bezeichnet einen einzelnen Server
+oder eine Hosting-Instanz, die von einer Organisation genutzt wird.
 
 SIE DÜRFEN:
 - Die Software für private oder kommerzielle Zwecke verwenden
 - Die Software für den eigenen internen Gebrauch ändern
-- Die Software pro Lizenz in einer produktiven Umgebung installieren
-  und betreiben
+- Die Software pro Lizenz in einer produktiven Umgebung
+  installieren und betreiben
 
 SIE DÜRFEN NICHT:
 - Die Software oder den Quellcode weiterverbreiten
-- Die Software weiterverkaufen, unterlizenzieren oder teilen
+- Die Software weiterverkaufen, unterlizenzieren, vermieten
+  oder Dritten zur Verfügung stellen
 - Die Software als konkurrierendes Produkt veröffentlichen
-- Die Software als SaaS- oder Hosting-Dienst anbieten,
-  ohne ausdrückliche Genehmigung des Autors
+- Die Software als SaaS-, PaaS- oder Hosting-Dienst anbieten,
+  ohne ausdrückliche schriftliche Genehmigung des Autors
+- Urheberrechts- oder Autorenhinweise entfernen oder verbergen
 
+SUPPORT UND UPDATES:
+Diese Lizenz beinhaltet keinen Support, keine Updates
+und keine Wartung, sofern nicht ausdrücklich anders angegeben.
+
+HAFTUNGSAUSSCHLUSS:
 Die Software wird „wie sie ist“ bereitgestellt,
 ohne jegliche Gewährleistung.
 Der Autor haftet nicht für Schäden,
-die aus der Nutzung der Software entstehen.
+die aus der Nutzung oder Nichtnutzung der Software entstehen.
