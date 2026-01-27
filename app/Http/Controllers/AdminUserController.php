@@ -48,7 +48,8 @@ class AdminUserController extends Controller
         );
 
         return redirect()
-            ->route('admin.dashboard')
-            ->with('success', 'Operator created.');
+            ->route('admin.settings.index')
+            ->with('success_operator_email', $user->email)
+            ->with('redirect_after', route('admin.dashboard'));
     }
 }

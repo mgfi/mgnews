@@ -1,15 +1,31 @@
 @extends('layouts.admin')
 
 @section('content')
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+            @if (session('auto_redirect'))
+                <div class="small text-muted mt-1">
+                    {{ __('alerts.redirecting_dashboard') }}
+                </div>
+            @endif
+        </div>
+    @endif
+
+    @if (session('auto_redirect'))
+        <script>
+            setTimeout(() => {
+                window.location.href = "{{ session('auto_redirect') }}";
+            }, 4000);
+        </script>
+    @endif
+
     <div class="container py-4">
 
         <h1 class="mb-4">⚙️ {{ __('admSetInd.title') }}</h1>
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ __('admSetInd.success') }}
-            </div>
-        @endif
 
         <div class="card">
             <div class="card-body">
@@ -62,6 +78,7 @@
         </div>
 
     </div>
+
     @if (auth()->user()->utype === 'ADM')
         <div class="container py-4">
             <div class="card border-warning">
@@ -73,14 +90,6 @@
                         Dodaj nowego operatora systemu. Operator przy pierwszym logowaniu
                         będzie musiał zmienić hasło.
                     </p>
-
-                    @if (session('operator_password'))
-                        <div class="alert alert-warning">
-                            <strong>Operator utworzony.</strong><br>
-                            Tymczasowe hasło:
-                            <code>{{ session('operator_password') }}</code>
-                        </div>
-                    @endif
 
                     <form method="POST" action="{{ route('admin.users.store') }}">
                         @csrf
@@ -95,25 +104,19 @@
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]" value="view_dashboard">
-                                <label class="form-check-label">
-                                    Dashboard
-                                </label>
+                                <label class="form-check-label">Dashboard</label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]"
                                     value="newsletter_view">
-                                <label class="form-check-label">
-                                    Newsletter – podgląd
-                                </label>
+                                <label class="form-check-label">Newsletter – podgląd</label>
                             </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="permissions[]"
                                     value="newsletter_edit">
-                                <label class="form-check-label">
-                                    Newsletter – edycja
-                                </label>
+                                <label class="form-check-label">Newsletter – edycja</label>
                             </div>
                         </div>
 

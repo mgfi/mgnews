@@ -1,21 +1,21 @@
 <?php
 
 return [
-    'title' => 'Settings',
+
+    'title' => 'System settings',
 
     'cardTitle' => 'Newsletter settings',
 
-    'companyName'    => 'Company name',
-    'companyAddress' => 'Company address',
-    'companyEmail'   => 'Company email',
-    'privacyUrl'     => 'Privacy policy URL',
-    'footerText'     => 'Footer text',
-
+    'companyName'        => 'Company name',
+    'companyAddress'     => 'Company address',
+    'companyEmail'       => 'Company email',
+    'privacyUrl'         => 'Privacy policy URL',
     'privacyPlaceholder' => 'https://example.com/privacy-policy',
 
-    'footerHint' => 'This content will be appended to every newsletter email.',
+    'footerText' => 'Footer text',
+    'footerHint' => 'This content will be appended to every newsletter email and unsubscribe page.',
 
-    'save' => 'Save settings',
+    'save'    => 'Save settings',
+    'success' => 'Settings have been saved successfully.',
 
-    'success' => 'Settings saved',
 ];

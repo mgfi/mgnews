@@ -1,21 +1,21 @@
 <?php
 
 return [
-    'title' => 'Ustawienia',
+
+    'title' => 'Ustawienia systemowe',
 
     'cardTitle' => 'Ustawienia newslettera',
 
-    'companyName'    => 'Nazwa firmy',
-    'companyAddress' => 'Adres firmy',
-    'companyEmail'   => 'Email firmowy',
-    'privacyUrl'     => 'Adres polityki prywatności',
-    'footerText'     => 'Treść stopki',
-
+    'companyName'        => 'Nazwa firmy',
+    'companyAddress'     => 'Adres firmy',
+    'companyEmail'       => 'Email firmowy',
+    'privacyUrl'         => 'Adres polityki prywatności',
     'privacyPlaceholder' => 'https://example.com/polityka-prywatnosci',
 
-    'footerHint' => 'Ta treść zostanie dołączona do każdego maila newslettera.',
+    'footerText' => 'Treść stopki',
+    'footerHint' => 'Ta treść zostanie dołączona do każdego maila newslettera oraz strony wypisu.',
 
-    'save' => 'Zapisz ustawienia',
+    'save'    => 'Zapisz ustawienia',
+    'success' => 'Ustawienia zostały zapisane poprawnie.',
 
-    'success' => 'Ustawienia zapisane',
 ];
