@@ -55,18 +55,39 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
+
+            // BLOCK INACTIVE USERS
+            if (!Auth::user()->is_active) {
+                Auth::logout();
+
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                session()->flash(
+                    'error',
+                    __('alerts.account_inactive')
+                );
+
+                return back();
+            }
+
             $request->session()->regenerate();
+
             \App\Services\AuditLogger::log('login');
+
             return redirect()->route('admin.dashboard');
         }
 
-        return back()->withErrors(['email' => __('auth.failed')]);
+        return back()->withErrors([
+            'email' => __('auth.failed'),
+        ]);
     });
+
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
         ->name('password.request');
@@ -221,8 +242,18 @@ Route::middleware(['auth', 'verified'])
     ->get('/operator/dashboard', function () {
         abort_unless(Auth::user()->isOperator(), 403);
         return view('operator.dashboard');
-    })->name('operator.dashboard');
+    })
+    ->name('operator.dashboard');
+// Route::middleware(['auth', 'verified'])
+//     ->get('/operator/dashboard', function () {
+//         $user = Auth::user();
 
+//         dd(
+//             get_class($user),
+//             method_exists($user, 'isOperator'),
+//             get_class_methods($user)
+//         );
+//     });
 /*
 |--------------------------------------------------------------------------
 | NEWSLETTER – PUBLIC

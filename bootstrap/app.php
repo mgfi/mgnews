@@ -15,9 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // 🔹 Alias middleware (route middleware)
         $middleware->alias([
             'admin'         => \App\Http\Middleware\AdminMiddleware::class,
+            'operator'      => \App\Http\Middleware\EnsureOperator::class,
             'not.installed' => \App\Http\Middleware\EnsureNotInstalled::class,
             'permission'    => \App\Http\Middleware\CheckPermission::class,
         ]);
+
 
         // 🔹 Global WEB middleware
         $middleware->web(append: [

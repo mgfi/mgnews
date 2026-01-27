@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'permissions',
         'created_by',
         'must_change_password',
+        'is_active',
     ];
 
     /**
@@ -36,10 +37,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * Casts
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
-        'permissions'       => 'array',
+        'email_verified_at'    => 'datetime',
+        'password'             => 'hashed',
+        'permissions'          => 'array',
         'must_change_password' => 'boolean',
+        'is_active'            => 'boolean',
     ];
 
     /*
@@ -65,6 +67,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->utype === self::TYPE_USER;
     }
 
+    public function isActive(): bool
+    {
+        return (bool) $this->is_active;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Permissions
@@ -84,9 +91,5 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->permissions = array_values(array_unique($permissions));
         $this->save();
-    }
-    public function isActive(): bool
-    {
-        return (bool) $this->is_active;
     }
 }

@@ -2,16 +2,24 @@
 
 return [
 
+    'saved' => 'Data has been saved.',
+
     'operator_created' =>
     'Operator :email has been created successfully.',
 
     'redirecting_dashboard' =>
     'Redirecting to the dashboard...',
 
-    'saved' =>
-    'Data has been saved.',
+    'password_changed' =>
+    'Password has been changed successfully.',
 
-    'error' =>
+    'error_generic' =>
     'An error occurred. Please try again.',
+
+    'force_password_change' =>
+    'You must change your password before continuing.',
+
+    'account_inactive' =>
+    'Your account is inactive. Please contact the administrator.',
 
 ];

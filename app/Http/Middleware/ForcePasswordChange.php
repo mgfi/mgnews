@@ -14,7 +14,7 @@ class ForcePasswordChange
             Auth::check() &&
             Auth::user()->must_change_password
         ) {
-            // pozwól na change password + submit + logout
+            // allow change password + submit + logout
             if ($request->routeIs([
                 'password.change',
                 'password.update.force',
@@ -23,11 +23,18 @@ class ForcePasswordChange
                 return $next($request);
             }
 
-            // flash tylko raz – nie nadpisuj walidacji
+            // GUARD: Livewire / AJAX / API
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => __('alerts.force_password_change'),
+                ], 423);
+            }
+
+            // flash only once – do not override validation
             if (!session()->has('warning')) {
                 session()->flash(
                     'warning',
-                    __('You must change your password.')
+                    __('alerts.force_password_change')
                 );
             }
 

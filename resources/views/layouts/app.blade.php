@@ -54,6 +54,10 @@
 
     {{-- CONTENT --}}
     <main class="container my-5">
+
+        {{-- GLOBAL FLASH MESSAGES --}}
+        @include('partials.flash')
+
         @yield('content')
     </main>
 

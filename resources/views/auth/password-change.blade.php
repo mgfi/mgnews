@@ -15,7 +15,7 @@
                         {{ __('authPasCha.subtitle') }}
                     </p>
 
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
                         <div class="alert alert-danger">
                             {{ __('authPasCha.error') }}
                         </div>
@@ -25,7 +25,7 @@
                         <div class="alert alert-warning">
                             {{ session('warning') }}
                         </div>
-                    @endif
+                    @endif --}}
 
                     <form method="POST" action="{{ route('password.update.force') }}">
                         @csrf
