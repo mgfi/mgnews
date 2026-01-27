@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>{{ __('layAdm.title') }} | {{ config('app.name') }}</title>
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
@@ -13,21 +14,41 @@
 
 <body class="bg-light">
 
+    {{-- TOP NAVBAR --}}
     @include('admin.partials.navbar')
 
     <div class="container-fluid">
         <div class="row">
+
+            {{-- SIDEBAR --}}
             <aside class="col-md-2 p-0 bg-white border-end min-vh-100">
                 @include('partials.adminSidebar')
             </aside>
 
+            {{-- MAIN CONTENT --}}
             <main class="col-md-10 p-4">
+
+                {{-- GLOBAL FLASH MESSAGES --}}
+                @include('partials.flash')
+
+                {{-- GLOBAL AUTO REDIRECT --}}
+                @if (session('redirect_after'))
+                    <script>
+                        setTimeout(() => {
+                            window.location.href = "{{ session('redirect_after') }}";
+                        }, 4000);
+                    </script>
+                @endif
+
+                {{-- PAGE CONTENT --}}
                 @isset($slot)
                     {{ $slot }}
                 @else
                     @yield('content')
                 @endisset
+
             </main>
+
         </div>
     </div>
 
