@@ -62,4 +62,69 @@
         </div>
 
     </div>
+    @if (auth()->user()->utype === 'ADM')
+        <div class="container py-4">
+            <div class="card border-warning">
+                <div class="card-body">
+
+                    <h4 class="mb-3">👤 Operatorzy</h4>
+
+                    <p class="text-muted">
+                        Dodaj nowego operatora systemu. Operator przy pierwszym logowaniu
+                        będzie musiał zmienić hasło.
+                    </p>
+
+                    @if (session('operator_password'))
+                        <div class="alert alert-warning">
+                            <strong>Operator utworzony.</strong><br>
+                            Tymczasowe hasło:
+                            <code>{{ session('operator_password') }}</code>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('admin.users.store') }}">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label class="form-label">Email operatora</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Uprawnienia</label>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]" value="view_dashboard">
+                                <label class="form-check-label">
+                                    Dashboard
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]"
+                                    value="newsletter_view">
+                                <label class="form-check-label">
+                                    Newsletter – podgląd
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]"
+                                    value="newsletter_edit">
+                                <label class="form-check-label">
+                                    Newsletter – edycja
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-warning">
+                            ➕ Dodaj operatora
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
 @endsection

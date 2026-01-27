@@ -35,12 +35,29 @@ new class extends Component {
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <!-- Right side -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-3">
+
+                {{-- SETTINGS ICON --}}
+                @if (auth()->check())
+                    @if (auth()->user()->utype === 'ADM')
+                        <a href="{{ route('admin.settings.index') }}" class="text-gray-500 hover:text-gray-700"
+                            title="Ustawienia systemu">
+                            ⚙️
+                        </a>
+                    @else
+                        <a href="{{ route('password.change') }}" class="text-gray-400 hover:text-gray-600"
+                            title="Ustawienia konta">
+                            ⚙️
+                        </a>
+                    @endif
+                @endif
+
+                {{-- USER DROPDOWN --}}
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition">
                             <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name"
                                 x-on:profile-updated.window="name = $event.detail.name"></div>
 
@@ -60,7 +77,6 @@ new class extends Component {
                             {{ __('profile.title') }}
                         </x-dropdown-link>
 
-                        <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
                             <x-dropdown-link>
                                 {{ __('authLog.logout') }}
@@ -73,7 +89,7 @@ new class extends Component {
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -105,11 +121,20 @@ new class extends Component {
             </div>
 
             <div class="mt-3 space-y-1">
+                @if (auth()->user()->utype === 'ADM')
+                    <x-responsive-nav-link :href="route('admin.settings.index')">
+                        ⚙️ Ustawienia systemu
+                    </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="route('password.change')">
+                        ⚙️ Ustawienia konta
+                    </x-responsive-nav-link>
+                @endif
+
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('profile.title') }}
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <button wire:click="logout" class="w-full text-start">
                     <x-responsive-nav-link>
                         {{ __('authLog.logout') }}
