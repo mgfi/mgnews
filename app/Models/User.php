@@ -50,7 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
     |--------------------------------------------------------------------------
     */
     public const TYPE_ADMIN = 'ADM';
-    public const TYPE_USER  = 'USR';
+    public const TYPE_USER  = 'USR'; 
 
     /*
     |--------------------------------------------------------------------------
