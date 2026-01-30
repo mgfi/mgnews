@@ -124,6 +124,106 @@
                             ➕ Dodaj operatora
                         </button>
                     </form>
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">📋 Lista operatorów</h5>
+
+                    @if ($operators->isEmpty())
+                        <div class="text-muted">
+                            Brak operatorów w systemie.
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('admin.users.bulkUpdate') }}">
+                            @csrf
+
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Email</th>
+                                            <th>Status</th>
+                                            <th>Uprawnienia</th>
+                                            <th>Akcje</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($operators as $operator)
+                                            <tr>
+                                                <td>
+                                                    {{ $operator->email }}
+                                                </td>
+
+                                                <td>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="users[{{ $operator->id }}][is_active]" value="1"
+                                                            {{ $operator->is_active ? 'checked' : '' }}>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    @php
+                                                        $perms = $operator->permissions ?? [];
+                                                    @endphp
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="users[{{ $operator->id }}][permissions][]"
+                                                            value="view_dashboard"
+                                                            {{ in_array('view_dashboard', $perms) ? 'checked' : '' }}>
+                                                        <label class="form-check-label">
+                                                            Dashboard
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="users[{{ $operator->id }}][permissions][]"
+                                                            value="subscriber_view"
+                                                            {{ in_array('subscriber_view', $perms) ? 'checked' : '' }}>
+                                                        <label class="form-check-label">
+                                                            Subskrybenci
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="users[{{ $operator->id }}][permissions][]"
+                                                            value="newsletter_view"
+                                                            {{ in_array('newsletter_view', $perms) ? 'checked' : '' }}>
+                                                        <label class="form-check-label">
+                                                            Newsletter – podgląd
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="users[{{ $operator->id }}][permissions][]"
+                                                            value="newsletter_edit"
+                                                            {{ in_array('newsletter_edit', $perms) ? 'checked' : '' }}>
+                                                        <label class="form-check-label">
+                                                            Newsletter – edycja
+                                                        </label>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <a href="{{ route('admin.users.edit', $operator) }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        Edytuj
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <button class="btn btn-primary mt-3">
+                                💾 Zapisz zmiany
+                            </button>
+                        </form>
+                    @endif
 
                 </div>
             </div>

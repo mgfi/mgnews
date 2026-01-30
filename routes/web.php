@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 use App\Services\AuditLogger;
 use App\Models\User;
 use App\Models\Subscriber;
@@ -27,9 +28,22 @@ use App\Http\Controllers\AdminUserController;
 */
 
 Route::get('/', function () {
-    return Auth::check()
-        ? redirect()->route('admin.dashboard')
-        : redirect()->route('login');
+
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
+    $user = Auth::user();
+
+    if ($user->isAdmin()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($user->isOperator()) {
+        return redirect()->route('operator.dashboard');
+    }
+
+    abort(403);
 });
 
 /*
@@ -39,8 +53,10 @@ Route::get('/', function () {
 */
 Route::post('/locale/{locale}', function (string $locale, Request $request) {
     abort_unless(in_array($locale, ['pl', 'en']), 400);
+
     $request->session()->put('locale', $locale);
     app()->setLocale($locale);
+
     return back();
 })->name('locale.switch');
 
@@ -54,40 +70,36 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', fn() => view('auth.login'))->name('login');
 
     Route::post('/login', function (Request $request) {
+
         $credentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
-
-            // BLOCK INACTIVE USERS
-            if (!Auth::user()->is_active) {
-                Auth::logout();
-
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                session()->flash(
-                    'error',
-                    __('alerts.account_inactive')
-                );
-
-                return back();
-            }
-
-            $request->session()->regenerate();
-
-            \App\Services\AuditLogger::log('login');
-
-            return redirect()->route('admin.dashboard');
+        if (!Auth::attempt($credentials)) {
+            return back()->withErrors([
+                'email' => __('auth.failed'),
+            ]);
         }
 
-        return back()->withErrors([
-            'email' => __('auth.failed'),
-        ]);
-    });
+        // BLOCK INACTIVE USERS
+        if (!Auth::user()->is_active) {
+            Auth::logout();
 
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            session()->flash('error', __('alerts.account_inactive'));
+
+            return back();
+        }
+
+        $request->session()->regenerate();
+
+        AuditLogger::log('login');
+
+        return redirect('/');
+    });
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
         ->name('password.request');
@@ -112,10 +124,14 @@ Route::get('/password/reset/success', fn() => view('auth.password-reset-success'
 |--------------------------------------------------------------------------
 */
 Route::post('/logout', function (Request $request) {
-    \App\Services\AuditLogger::log('logout');
+
+    AuditLogger::log('logout');
+
     Auth::logout();
+
     $request->session()->invalidate();
     $request->session()->regenerateToken();
+
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
 
@@ -172,11 +188,21 @@ Route::middleware(['auth', 'verified'])
             ->middleware('permission:newsletter_edit')
             ->name('newsletters.edit');
 
-        Route::get('/settings', fn() => view('admin.settings.index'))
-            ->middleware('permission:settings_view')
+        Route::get('/settings', function () {
+
+            $operators = User::query()
+                ->where('utype', 'OPE')
+                ->orderBy('email')
+                ->get();
+
+            return view('admin.settings.index', [
+                'operators' => $operators,
+            ]);
+        })->middleware('permission:settings_view')
             ->name('settings.index');
 
         Route::post('/settings', function (Request $request) {
+
             $data = $request->validate([
                 'pl.company_name' => 'required|string|max:255',
                 'en.company_name' => 'required|string|max:255',
@@ -194,7 +220,7 @@ Route::middleware(['auth', 'verified'])
 
         /*
         |--------------------------------------------------------------------------
-        | USERS (OPERATORS)
+        | USERS (OPERATORS) – ADMIN ONLY
         |--------------------------------------------------------------------------
         */
         Route::middleware('admin')->group(function () {
@@ -214,17 +240,17 @@ Route::middleware(['auth', 'verified'])
             Route::put('/users/{user}', function (Request $request, User $user) {
 
                 $data = $request->validate([
-                    'permissions' => ['nullable', 'array'],
+                    'permissions'   => ['nullable', 'array'],
                     'permissions.*' => ['string'],
-                    'is_active' => ['nullable', 'boolean'],
+                    'is_active'     => ['nullable', 'boolean'],
                 ]);
 
                 $user->update([
                     'permissions' => $data['permissions'] ?? [],
-                    'is_active' => $request->boolean('is_active'),
+                    'is_active'   => $request->boolean('is_active'),
                 ]);
 
-                \App\Services\AuditLogger::log('update_operator', 'User', [
+                AuditLogger::log('update_operator', 'User', [
                     'email' => $user->email,
                 ]);
 
@@ -235,25 +261,26 @@ Route::middleware(['auth', 'verified'])
 
 /*
 |--------------------------------------------------------------------------
-| OPERATOR DASHBOARD
+| OPERATOR PANEL
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])
-    ->get('/operator/dashboard', function () {
-        abort_unless(Auth::user()->isOperator(), 403);
-        return view('operator.dashboard');
-    })
-    ->name('operator.dashboard');
-// Route::middleware(['auth', 'verified'])
-//     ->get('/operator/dashboard', function () {
-//         $user = Auth::user();
+    ->prefix('operator')
+    ->as('operator.')
+    ->group(function () {
 
-//         dd(
-//             get_class($user),
-//             method_exists($user, 'isOperator'),
-//             get_class_methods($user)
-//         );
-//     });
+        Route::get('/dashboard', fn() => view('operator.dashboard'))
+            ->name('dashboard');
+
+        Route::get('/subscribers', fn() => view('operator.subscribers.index'))
+            ->middleware('permission:subscriber_view')
+            ->name('subscribers.index');
+
+        Route::get('/newsletters', fn() => view('operator.newsletters.index'))
+            ->middleware('permission:newsletter_view')
+            ->name('newsletters.index');
+    });
+
 /*
 |--------------------------------------------------------------------------
 | NEWSLETTER – PUBLIC
@@ -278,16 +305,17 @@ Route::prefix('newsletter')->as('newsletter.')->group(function () {
 
         if ($request->action === 'unsubscribe') {
             $subscriber->update([
-                'is_active' => false,
-                'unsubscribed_at' => now(),
+                'is_active'        => false,
+                'unsubscribed_at'  => now(),
             ]);
+
             return view('unsubscribe-confirmation');
         }
 
         DB::table('gdpr_erased_records')->insert([
             'email_hash' => hash('sha256', $subscriber->email),
-            'erased_at' => now(),
-            'source' => 'newsletter',
+            'erased_at'  => now(),
+            'source'     => 'newsletter',
         ]);
 
         $subscriber->delete();
@@ -302,28 +330,32 @@ Route::prefix('newsletter')->as('newsletter.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/invite/accept/{token}', function (string $token) {
+
     $user = User::where('invite_token', $token)->firstOrFail();
+
     return view('auth.invite-accept', compact('token'));
 })->name('invite.accept');
 
 Route::post('/invite/accept', function (Request $request) {
 
     $data = $request->validate([
-        'token' => ['required'],
+        'token'    => ['required'],
         'password' => ['required', 'confirmed', 'min:8'],
     ]);
 
     $user = User::where('invite_token', $data['token'])->firstOrFail();
 
     $user->forceFill([
-        'password' => bcrypt($data['password']),
-        'invite_token' => null,
-        'email_verified_at' => now(),
+        'password'           => bcrypt($data['password']),
+        'invite_token'       => null,
+        'email_verified_at'  => now(),
     ])->save();
 
-    \App\Services\AuditLogger::log('accept_invite', 'User', ['email' => $user->email]);
+    AuditLogger::log('accept_invite', 'User', [
+        'email' => $user->email,
+    ]);
 
     Auth::login($user);
 
-    return redirect()->route('admin.dashboard');
+    return redirect('/');
 })->name('invite.accept.store');
