@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>@yield('title', __('layOpe.title'))</title>
+    <title>{{ __('layOpe.title') }} | {{ config('app.name') }}</title>
 
+    {{-- TEN SAM FRONT CO ADMIN --}}
+    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-gray-100 text-gray-900">
 
-<div class="min-h-screen flex">
+<body class="bg-light">
 
-    {{-- Sidebar --}}
-    <x-operator.sidebar />
+    {{-- TOP NAVBAR (opcjonalnie inny niż admin) --}}
+    <x-operator.header />
 
-    <div class="flex-1 flex flex-col">
+    <div class="container-fluid">
+        <div class="row">
 
-        {{-- Header --}}
-        <x-operator.header />
+            {{-- SIDEBAR --}}
+            <aside class="col-md-2 p-0 bg-white border-end min-vh-100">
+                <x-operator.sidebar />
+            </aside>
 
-        {{-- Main content --}}
-        <main class="flex-1 p-6">
-            @yield('content')
-        </main>
+            {{-- MAIN CONTENT --}}
+            <main class="col-md-10 p-4">
+                @yield('content')
+            </main>
 
-        {{-- Footer --}}
-        <x-operator.footer />
-
+        </div>
     </div>
-</div>
 
-@livewireScripts
+    @livewireScripts
+    @stack('scripts')
 </body>
+
 </html>

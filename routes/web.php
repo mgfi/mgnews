@@ -167,7 +167,7 @@ Route::middleware('auth')->group(function () {
 | ADMIN PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'admin'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
@@ -264,7 +264,7 @@ Route::middleware(['auth', 'verified'])
 | OPERATOR PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'operator'])
     ->prefix('operator')
     ->as('operator.')
     ->group(function () {
@@ -280,6 +280,7 @@ Route::middleware(['auth', 'verified'])
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
     });
+
 
 /*
 |--------------------------------------------------------------------------
