@@ -15,20 +15,30 @@
 
 <body class="bg-light">
 
-    {{-- TOP NAVBAR (opcjonalnie inny niż admin) --}}
-    <x-operator.header />
+    {{-- TOP NAVBAR --}}
+    @include('operator.partials.navbar')
 
     <div class="container-fluid">
         <div class="row">
 
             {{-- SIDEBAR --}}
             <aside class="col-md-2 p-0 bg-white border-end min-vh-100">
-                <x-operator.sidebar />
+                @include('operator.partials.sidebar')
             </aside>
 
             {{-- MAIN CONTENT --}}
             <main class="col-md-10 p-4">
-                @yield('content')
+
+                {{-- FLASH --}}
+                @include('partials.flash')
+
+                {{-- CONTENT --}}
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
+
             </main>
 
         </div>
