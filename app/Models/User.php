@@ -6,10 +6,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * Mass assignable
@@ -42,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'permissions'          => 'array',
         'must_change_password' => 'boolean',
         'is_active'            => 'boolean',
+        'deleted_at'           => 'datetime',
     ];
 
     /*
@@ -50,7 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
     |--------------------------------------------------------------------------
     */
     public const TYPE_ADMIN = 'ADM';
-    public const TYPE_USER  = 'USR'; 
+    public const TYPE_USER  = 'USR';
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +72,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isActive(): bool
     {
         return (bool) $this->is_active;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+    public function scopeOperators($query)
+    {
+        return $query->where('utype', self::TYPE_USER);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relations
+    |--------------------------------------------------------------------------
+    */
+    public function creator()
+    {
+        return $this->belongsTo(self::class, 'created_by');
     }
 
     /*

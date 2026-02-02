@@ -82,8 +82,10 @@ Route::middleware('guest')->group(function () {
             ]);
         }
 
-        // BLOCK INACTIVE USERS
-        if (!Auth::user()->is_active) {
+        $user = Auth::user();
+
+        // BLOCK INACTIVE OR DELETED USERS
+        if (! $user->is_active || $user->trashed()) {
             Auth::logout();
 
             $request->session()->invalidate();
@@ -175,6 +177,17 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::get('/dashboard', fn() => view('admin.dashboard'))
             ->middleware('permission:view_dashboard')
             ->name('dashboard');
+        Route::get('/operators', function () {
+
+            $operators = User::query()
+                ->where('utype', User::TYPE_USER)
+                ->with('creator')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('admin.operators.index', compact('operators'));
+        })->middleware('permission:operator_view')
+            ->name('operators.index');
 
         Route::get('/subscribers', fn() => view('admin.subscribers.index'))
             ->middleware('permission:subscriber_view')

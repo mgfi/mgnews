@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -26,11 +23,21 @@ return new class extends Migration
             $table->boolean('must_change_password')->default(false);
 
             /**
-             * User type:
+             * Typ użytkownika:
              * ADM = Administrator
              * USR = Operator
              */
             $table->string('utype', 3)->default('USR');
+
+            /**
+             * Uprawnienia operatora
+             */
+            $table->json('permissions')->nullable();
+
+            /**
+             * Aktywność konta
+             */
+            $table->boolean('is_active')->default(true);
 
             /**
              * Kto utworzył konto (admin)
@@ -39,6 +46,11 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
+
+            /**
+             * Soft delete (RODO / historia)
+             */
+            $table->softDeletes();
 
             $table->rememberToken();
             $table->timestamps();
@@ -60,9 +72,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('sessions');
