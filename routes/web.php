@@ -85,7 +85,7 @@ Route::middleware('guest')->group(function () {
         $user = Auth::user();
 
         // BLOCK INACTIVE OR DELETED USERS
-        if (! $user->is_active || $user->trashed()) {
+        if (! $user->is_active || $user->deleted_at !== null) {
             Auth::logout();
 
             $request->session()->invalidate();
@@ -177,6 +177,12 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::get('/dashboard', fn() => view('admin.dashboard'))
             ->middleware('permission:view_dashboard')
             ->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | OPERATORS – LIST
+        |--------------------------------------------------------------------------
+        */
         Route::get('/operators', function () {
 
             $operators = User::query()
@@ -189,10 +195,110 @@ Route::middleware(['auth', 'verified', 'admin'])
         })->middleware('permission:operator_view')
             ->name('operators.index');
 
+        /*
+        |--------------------------------------------------------------------------
+        | OPERATORS – EDIT (READ ONLY – STEP 1.4.1)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/operators/{user}/edit', function (User $user) {
+
+            abort_unless($user->isOperator(), 404);
+
+            $allPermissions = [
+                'newsletter_view',
+                'newsletter_edit',
+                'subscriber_view',
+                'stats_view',
+            ];
+
+            return view('admin.operators.edit', [
+                'operator'       => $user,
+                'allPermissions' => $allPermissions,
+            ]);
+        })->middleware('permission:operator_update')
+            ->name('operators.edit');
+        /*
+|--------------------------------------------------------------------------
+| OPERATORS – UPDATE PERMISSIONS (STEP 1.4.2)
+|--------------------------------------------------------------------------
+*/
+        Route::put('/operators/{user}', function (Request $request, User $user) {
+
+            abort_unless($user->isOperator(), 404);
+
+            $data = $request->validate([
+                'permissions'   => ['nullable', 'array'],
+                'permissions.*' => ['string'],
+            ]);
+
+            $user->update([
+                'permissions' => $data['permissions'] ?? [],
+            ]);
+
+            AuditLogger::log('update_operator_permissions', 'User', [
+                'email' => $user->email,
+            ]);
+
+            return back()->with('success', __('alerts.operator_permissions_updated'));
+        })->middleware('permission:operator_update')
+            ->name('operators.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | OPERATORS – TOGGLE ACTIVE / INACTIVE
+        |--------------------------------------------------------------------------
+        */
+        Route::patch('/operators/{user}/toggle', function (User $user) {
+
+            abort_unless($user->isOperator(), 404);
+
+            $user->update([
+                'is_active' => ! $user->is_active,
+            ]);
+
+            AuditLogger::log(
+                $user->is_active ? 'activate_operator' : 'deactivate_operator',
+                'User',
+                ['email' => $user->email]
+            );
+
+            return back()->with('success', __('alerts.operator_status_changed'));
+        })->middleware('permission:operator_update')
+            ->name('operators.toggle');
+
+        /*
+        |--------------------------------------------------------------------------
+        | OPERATORS – SOFT DELETE
+        |--------------------------------------------------------------------------
+        */
+        Route::delete('/operators/{user}', function (User $user) {
+
+            abort_unless($user->isOperator(), 404);
+
+            $user->delete();
+
+            AuditLogger::log('delete_operator', 'User', [
+                'email' => $user->email,
+            ]);
+
+            return back()->with('success', __('alerts.operator_deleted'));
+        })->middleware('permission:operator_delete')
+            ->name('operators.delete');
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUBSCRIBERS
+        |--------------------------------------------------------------------------
+        */
         Route::get('/subscribers', fn() => view('admin.subscribers.index'))
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
+        /*
+        |--------------------------------------------------------------------------
+        | NEWSLETTERS
+        |--------------------------------------------------------------------------
+        */
         Route::get('/newsletters', NewsletterIndex::class)
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
@@ -201,10 +307,15 @@ Route::middleware(['auth', 'verified', 'admin'])
             ->middleware('permission:newsletter_edit')
             ->name('newsletters.edit');
 
+        /*
+        |--------------------------------------------------------------------------
+        | SETTINGS
+        |--------------------------------------------------------------------------
+        */
         Route::get('/settings', function () {
 
             $operators = User::query()
-                ->where('utype', 'OPE')
+                ->where('utype', User::TYPE_USER)
                 ->orderBy('email')
                 ->get();
 
@@ -229,47 +340,8 @@ Route::middleware(['auth', 'verified', 'admin'])
             }
 
             return back()->with('success', 'Settings saved');
-        })->middleware('permission:settings_update')->name('settings.save');
-
-        /*
-        |--------------------------------------------------------------------------
-        | USERS (OPERATORS) – ADMIN ONLY
-        |--------------------------------------------------------------------------
-        */
-        Route::middleware('admin')->group(function () {
-
-            Route::get('/users/create', fn() => view('admin.users.create'))
-                ->name('users.create');
-
-            Route::post('/users', [AdminUserController::class, 'store'])
-                ->name('users.store');
-
-            Route::get(
-                '/users/{user}/edit',
-                fn(User $user) =>
-                view('admin.users.edit', compact('user'))
-            )->name('users.edit');
-
-            Route::put('/users/{user}', function (Request $request, User $user) {
-
-                $data = $request->validate([
-                    'permissions'   => ['nullable', 'array'],
-                    'permissions.*' => ['string'],
-                    'is_active'     => ['nullable', 'boolean'],
-                ]);
-
-                $user->update([
-                    'permissions' => $data['permissions'] ?? [],
-                    'is_active'   => $request->boolean('is_active'),
-                ]);
-
-                AuditLogger::log('update_operator', 'User', [
-                    'email' => $user->email,
-                ]);
-
-                return redirect()->route('admin.dashboard');
-            })->name('users.update');
-        });
+        })->middleware('permission:settings_update')
+            ->name('settings.save');
     });
 
 /*

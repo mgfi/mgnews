@@ -17,7 +17,14 @@
         <tbody>
             @forelse ($operators as $operator)
                 <tr>
-                    <td>{{ $operator->email }}</td>
+                    <td>
+                        <a href="{{ route('admin.operators.edit', $operator) }}"
+                            class="fw-bold text-decoration-none text-body operator-link">
+                            {{ $operator->email }}
+                        </a>
+                    </td>
+
+
                     <td>
                         @if ($operator->is_active)
                             <span class="badge bg-success">
