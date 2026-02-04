@@ -16,14 +16,8 @@
         </thead>
         <tbody>
             @forelse ($operators as $operator)
-                <tr>
-                    <td>
-                        <a href="{{ route('admin.operators.edit', $operator) }}"
-                            class="fw-bold text-decoration-none text-body operator-link">
-                            {{ $operator->email }}
-                        </a>
-                    </td>
-
+                <tr onclick="window.location='{{ route('admin.operators.edit', $operator) }}'" style="cursor: pointer;">
+                    <td>{{ $operator->email }}</td>
 
                     <td>
                         @if ($operator->is_active)
@@ -36,14 +30,17 @@
                             </span>
                         @endif
                     </td>
+
                     <td>
                         {{ $operator->created_at?->format('Y-m-d') ?? '—' }}
                     </td>
+
                     <td>
                         {{ $operator->creator?->email ?? '—' }}
                     </td>
                 </tr>
             @empty
+
                 <tr>
                     <td colspan="4" class="text-center text-muted">
                         {{ __('admOpeInd.empty') }}

@@ -4,4 +4,5 @@ return [
     'title'       => 'Edycja operatora',
     'email'       => 'Adres e-mail',
     'permissions' => 'Uprawnienia',
+    'save'        => 'Zapisz zmiany',
 ];
