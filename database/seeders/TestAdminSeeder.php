@@ -10,7 +10,9 @@ class TestAdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // =========================
         // ADMIN
+        // =========================
         User::updateOrCreate(
             [
                 'email' => 'mgfirmowy@gmail.com',
@@ -19,28 +21,32 @@ class TestAdminSeeder extends Seeder
                 'name'               => 'Test Admin',
                 'password'           => Hash::make('admin1234'),
                 'utype'              => User::TYPE_ADMIN,
-                'permissions'        => [], // admin ma bypass
+                'permissions'        => [], // admin bypass
                 'is_active'          => true,
+                'must_change_password' => false, // admin NIE musi zmieniać
                 'email_verified_at'  => now(),
             ]
         );
 
+        // =========================
         // OPERATOR (USR)
+        // =========================
         User::updateOrCreate(
             [
                 'email' => 'user@user.pl',
             ],
             [
-                'name'               => 'Test Operator',
-                'password'           => Hash::make('user1234'),
-                'utype'              => User::TYPE_USER,
-                'permissions'        => [
+                'name'                 => 'Test Operator',
+                'password'             => Hash::make('user1234'),
+                'utype'                => User::TYPE_USER,
+                'permissions'          => [
                     'view_dashboard',
                     'subscriber_view',
                     'newsletter_view',
                 ],
-                'is_active'          => true,
-                'email_verified_at'  => now(),
+                'is_active'            => true,
+                'must_change_password' => true, // 🔐 KLUCZOWE
+                'email_verified_at'    => now(),
             ]
         );
     }

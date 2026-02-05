@@ -6,11 +6,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Services\AuditLogger;
 
 class AdminUserController extends Controller
 {
+    /**
+     * Create new operator (admin action).
+     * Operator is forced to change password on first login.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -19,37 +23,52 @@ class AdminUserController extends Controller
             'permissions.*' => ['string'],
         ]);
 
-        $user = User::create([
-            'name'           => 'Operator',
-            'email'          => $data['email'],
-            'password'       => Hash::make(Str::random(32)),
-            'utype'          => 'USR',
-            'permissions'    => $data['permissions'] ?? [],
-            'invite_token'   => Str::uuid(),
-            'invite_sent_at' => now(),
-            'is_active'      => true,
+        // Generate strong temporary password (never revealed)
+        $temporaryPassword = Str::random(32);
+
+        $operator = User::create([
+            'name'                 => 'Operator',
+            'email'                => $data['email'],
+            'password'             => Hash::make($temporaryPassword),
+            'utype'                => User::TYPE_USER,
+            'permissions'          => $data['permissions'] ?? [],
+            'invite_token'         => Str::uuid(),
+            'invite_sent_at'       => now(),
+            'is_active'            => true,
+            'must_change_password' => true,          // 🔐 FORCE PASSWORD CHANGE
+            'created_by'           => auth()->id(),   // 🔍 AUDIT / OWNERSHIP
         ]);
 
-        // Mail::to($user->email)->send(
-        //     new \App\Mail\OperatorInviteMail($user)
-        // );
-        Log::info('INVITE MAIL TEST', [
-            'email' => $user->email,
-            'token' => $user->invite_token,
+        /*
+         |--------------------------------------------------------------------------
+         | Invite mail (disabled in dev)
+         |--------------------------------------------------------------------------
+         |
+         | Mail::to($operator->email)->send(
+         |     new \App\Mail\OperatorInviteMail($operator)
+         | );
+         |
+         */
+
+        // Dev / test log instead of mail
+        Log::info('OPERATOR INVITE GENERATED', [
+            'email' => $operator->email,
+            'token' => $operator->invite_token,
         ]);
 
-        \App\Services\AuditLogger::log(
-            'create_operator',
+        // Audit log
+        AuditLogger::log(
+            'operator.created',
             'User',
             [
-                'email'       => $user->email,
-                'permissions' => $user->permissions,
+                'email'       => $operator->email,
+                'permissions' => $operator->permissions,
             ]
         );
 
         return redirect()
             ->route('admin.settings.index')
-            ->with('success_operator_email', $user->email)
+            ->with('success_operator_email', $operator->email)
             ->with('redirect_after', route('admin.dashboard'));
     }
 }

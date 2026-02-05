@@ -23,4 +23,7 @@ return [
     'Your account is inactive. Please contact the administrator.',
 
     'operator_deleted' => 'Operator has been deleted.',
+
+    'password_changed_login' => 'Your password has been changed. Please log in with your new password.',
+
 ];

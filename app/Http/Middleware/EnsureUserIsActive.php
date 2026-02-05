@@ -6,7 +6,6 @@ use Closure;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsActive
 {
@@ -15,8 +14,13 @@ class EnsureUserIsActive
         /** @var User|null $user */
         $user = Auth::user();
 
-        if ($user && ! $user->isActive()) {
-
+        if (
+            $user &&
+            (
+                ! $user->isActive() ||
+                $user->trashed()
+            )
+        ) {
             Auth::logout();
 
             $request->session()->invalidate();
@@ -24,7 +28,7 @@ class EnsureUserIsActive
 
             return redirect()
                 ->route('login')
-                ->with('error', __('auth.account_inactive'));
+                ->with('error', __('alerts.account_inactive'));
         }
 
         return $next($request);

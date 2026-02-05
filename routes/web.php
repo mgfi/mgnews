@@ -100,6 +100,10 @@ Route::middleware('guest')->group(function () {
 
         AuditLogger::log('login');
 
+        if ($user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
         return redirect('/');
     });
 

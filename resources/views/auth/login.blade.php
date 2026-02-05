@@ -1,6 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
+    @if (session('password_changed'))
+        <div class="alert alert-success text-center mb-4" id="password-changed-alert">
+            {{ __('alerts.password_changed_login') }}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const el = document.getElementById('password-changed-alert');
+                if (el) el.remove();
+            }, 5000);
+        </script>
+    @endif
+
     <div class="row justify-content-center">
         <div class="col-md-4">
 

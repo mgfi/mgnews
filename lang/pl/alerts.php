@@ -23,4 +23,7 @@ return [
     'Twoje konto jest nieaktywne. Skontaktuj się z administratorem.',
 
     'operator_deleted' => 'Operator został usunięty.',
+
+    'password_changed_login' => 'Twoje hasło zostało zmienione. Zaloguj się nowym hasłem.',
+
 ];
