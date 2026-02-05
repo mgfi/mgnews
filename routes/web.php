@@ -179,21 +179,30 @@ Route::middleware(['auth', 'verified', 'admin'])
             ->name('dashboard');
 
         /*
-        |--------------------------------------------------------------------------
-        | OPERATORS – LIST
-        |--------------------------------------------------------------------------
-        */
-        Route::get('/operators', function () {
+|--------------------------------------------------------------------------
+| OPERATORS – LIST
+|--------------------------------------------------------------------------
+*/
+        Route::get('/operators', function (Request $request) {
 
-            $operators = User::query()
+            $query = User::withTrashed()
                 ->where('utype', User::TYPE_USER)
                 ->with('creator')
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
+
+            match ($request->get('status')) {
+                'deleted'  => $query->onlyTrashed(),
+                'active'   => $query->where('is_active', true),
+                'inactive' => $query->where('is_active', false),
+                default    => null,
+            };
+
+            $operators = $query->get();
 
             return view('admin.operators.index', compact('operators'));
         })->middleware('permission:operator_view')
             ->name('operators.index');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -284,6 +293,27 @@ Route::middleware(['auth', 'verified', 'admin'])
             return back()->with('success', __('alerts.operator_deleted'));
         })->middleware('permission:operator_delete')
             ->name('operators.delete');
+        /*
+|--------------------------------------------------------------------------
+| OPERATORS – RESTORE (STEP 2.1)
+|--------------------------------------------------------------------------
+*/
+        Route::post('/operators/{user}/restore', function (int $user) {
+
+            $user = User::withTrashed()->findOrFail($user);
+
+            abort_unless($user->isOperator(), 404);
+            abort_unless($user->trashed(), 404);
+
+            $user->restore();
+
+            AuditLogger::log('operator.restored', 'User', [
+                'email' => $user->email,
+            ]);
+
+            return back()->with('success', __('alerts.operator_restored'));
+        })->middleware('permission:operator_update')
+            ->name('operators.restore');
 
         /*
         |--------------------------------------------------------------------------

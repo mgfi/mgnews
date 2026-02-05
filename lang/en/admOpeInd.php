@@ -10,6 +10,12 @@ return [
 
     'active'     => 'Active',
     'inactive'   => 'Inactive',
+    'deleted'    => 'Deleted',
+
+    'actions'    => 'Actions',
+    'edit'       => 'Edit',
+    'delete'     => 'Delete',
+    'restore'    => 'Restore',
 
     'empty'      => 'No operators found',
 ];

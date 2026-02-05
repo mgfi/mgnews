@@ -21,4 +21,6 @@ return [
 
     'account_inactive' =>
     'Twoje konto jest nieaktywne. Skontaktuj się z administratorem.',
+
+    'operator_deleted' => 'Operator został usunięty.',
 ];
