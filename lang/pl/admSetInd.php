@@ -17,5 +17,8 @@ return [
 
     'save'    => 'Zapisz ustawienia',
     'success' => 'Ustawienia zostały zapisane poprawnie.',
+    'audit_logs' => 'Dziennik zdarzeń',
+    'audit_logs_desc' => 'Podgląd wszystkich operacji wykonanych w systemie.',
+    'audit_logs_open' => 'Otwórz dziennik',
 
 ];

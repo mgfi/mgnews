@@ -10,6 +10,7 @@ use App\Services\AuditLogger;
 use App\Models\User;
 use App\Models\Subscriber;
 use App\Models\NewsletterSetting;
+use App\Models\AuditLog;
 
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
@@ -178,6 +179,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     ->as('admin.')
     ->group(function () {
 
+
         Route::get('/dashboard', fn() => view('admin.dashboard'))
             ->middleware('permission:view_dashboard')
             ->name('dashboard');
@@ -207,7 +209,12 @@ Route::middleware(['auth', 'verified', 'admin'])
         })->middleware('permission:operator_view')
             ->name('operators.index');
 
-
+        Route::post('/operators', [AdminUserController::class, 'store'])
+            ->middleware('permission:operator_create')
+            ->name('operators.store');
+        Route::post('/operators/bulk-update', [AdminUserController::class, 'bulkUpdate'])
+            ->middleware('permission:operator_update')
+            ->name('operators.bulkUpdate');
         /*
         |--------------------------------------------------------------------------
         | OPERATORS – EDIT (READ ONLY – STEP 1.4.1)
@@ -376,6 +383,18 @@ Route::middleware(['auth', 'verified', 'admin'])
             return back()->with('success', 'Settings saved');
         })->middleware('permission:settings_update')
             ->name('settings.save');
+
+
+
+        Route::get('/audit-logs', function () {
+
+            $logs = AuditLog::with('user')
+                ->latest()
+                ->paginate(2);
+
+            return view('admin.audit-logs.index', compact('logs'));
+        })->middleware('permission:view_audit_logs')
+            ->name('audit-logs.index');
     });
 
 /*

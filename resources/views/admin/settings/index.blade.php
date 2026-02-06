@@ -27,6 +27,7 @@
 
         <h1 class="mb-4">⚙️ {{ __('admSetInd.title') }}</h1>
 
+        {{-- ================= SETTINGS ================= --}}
         <div class="card">
             <div class="card-body">
 
@@ -71,7 +72,6 @@
                     <button type="submit" class="btn btn-success">
                         💾 {{ __('admSetInd.save') }}
                     </button>
-
                 </form>
 
             </div>
@@ -79,6 +79,29 @@
 
     </div>
 
+    {{-- ================= AUDIT LOG ================= --}}
+    @if (auth()->user()->utype === 'ADM')
+        <div class="container py-4">
+            <div class="card border-secondary">
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h4 class="mb-1">🧾 {{ __('admSetInd.audit_logs') }}</h4>
+                        <p class="text-muted mb-0">
+                            {{ __('admSetInd.audit_logs_desc') }}
+                        </p>
+                    </div>
+
+                    <a href="{{ route('admin.audit-logs.index') }}" class="btn btn-outline-secondary">
+                        {{ __('admSetInd.audit_logs_open') }}
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ================= OPERATORS ================= --}}
     @if (auth()->user()->utype === 'ADM')
         <div class="container py-4">
             <div class="card border-warning">
@@ -91,7 +114,8 @@
                         będzie musiał zmienić hasło.
                     </p>
 
-                    <form method="POST" action="{{ route('admin.users.store') }}">
+                    <form method="POST" action="{{ route('admin.operators.store') }}">
+
                         @csrf
 
                         <div class="mb-3">
@@ -124,6 +148,7 @@
                             ➕ Dodaj operatora
                         </button>
                     </form>
+
                     <hr class="my-4">
 
                     <h5 class="mb-3">📋 Lista operatorów</h5>
@@ -133,7 +158,8 @@
                             Brak operatorów w systemie.
                         </div>
                     @else
-                        <form method="POST" action="{{ route('admin.users.bulkUpdate') }}">
+                        <form method="POST" action="{{ route('admin.operators.bulkUpdate') }}">
+
                             @csrf
 
                             <div class="table-responsive">
@@ -149,9 +175,7 @@
                                     <tbody>
                                         @foreach ($operators as $operator)
                                             <tr>
-                                                <td>
-                                                    {{ $operator->email }}
-                                                </td>
+                                                <td>{{ $operator->email }}</td>
 
                                                 <td>
                                                     <div class="form-check form-switch">
@@ -162,53 +186,21 @@
                                                 </td>
 
                                                 <td>
-                                                    @php
-                                                        $perms = $operator->permissions ?? [];
-                                                    @endphp
+                                                    @php $perms = $operator->permissions ?? []; @endphp
 
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            name="users[{{ $operator->id }}][permissions][]"
-                                                            value="view_dashboard"
-                                                            {{ in_array('view_dashboard', $perms) ? 'checked' : '' }}>
-                                                        <label class="form-check-label">
-                                                            Dashboard
-                                                        </label>
-                                                    </div>
-
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            name="users[{{ $operator->id }}][permissions][]"
-                                                            value="subscriber_view"
-                                                            {{ in_array('subscriber_view', $perms) ? 'checked' : '' }}>
-                                                        <label class="form-check-label">
-                                                            Subskrybenci
-                                                        </label>
-                                                    </div>
-
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            name="users[{{ $operator->id }}][permissions][]"
-                                                            value="newsletter_view"
-                                                            {{ in_array('newsletter_view', $perms) ? 'checked' : '' }}>
-                                                        <label class="form-check-label">
-                                                            Newsletter – podgląd
-                                                        </label>
-                                                    </div>
-
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            name="users[{{ $operator->id }}][permissions][]"
-                                                            value="newsletter_edit"
-                                                            {{ in_array('newsletter_edit', $perms) ? 'checked' : '' }}>
-                                                        <label class="form-check-label">
-                                                            Newsletter – edycja
-                                                        </label>
-                                                    </div>
+                                                    @foreach (['view_dashboard' => 'Dashboard', 'subscriber_view' => 'Subskrybenci', 'newsletter_view' => 'Newsletter – podgląd', 'newsletter_edit' => 'Newsletter – edycja'] as $perm => $label)
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="users[{{ $operator->id }}][permissions][]"
+                                                                value="{{ $perm }}"
+                                                                {{ in_array($perm, $perms) ? 'checked' : '' }}>
+                                                            <label class="form-check-label">{{ $label }}</label>
+                                                        </div>
+                                                    @endforeach
                                                 </td>
 
                                                 <td>
-                                                    <a href="{{ route('admin.users.edit', $operator) }}"
+                                                    <a href="{{ route('admin.operators.edit', $operator) }}"
                                                         class="btn btn-sm btn-outline-secondary">
                                                         Edytuj
                                                     </a>

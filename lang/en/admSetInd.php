@@ -17,5 +17,8 @@ return [
 
     'save'    => 'Save settings',
     'success' => 'Settings have been saved successfully.',
+    'audit_logs' => 'Audit log',
+    'audit_logs_desc' => 'View all actions performed in the system.',
+    'audit_logs_open' => 'Open log',
 
 ];
