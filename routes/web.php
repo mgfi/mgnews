@@ -180,10 +180,12 @@ Route::middleware(['auth', 'verified', 'admin'])
     ->group(function () {
 
 
-        Route::get('/dashboard', fn() => view('admin.dashboard'))
+        Route::get('/dashboard', fn() => view('dashboard.admin', [
+            'navbar' => 'partials.navbar-admin',
+            'sidebar' => 'partials.sidebar-admin',
+        ]))
             ->middleware('permission:view_dashboard')
             ->name('dashboard');
-
         /*
 |--------------------------------------------------------------------------
 | OPERATORS – LIST
@@ -407,7 +409,10 @@ Route::middleware(['auth', 'verified', 'operator'])
     ->as('operator.')
     ->group(function () {
 
-        Route::get('/dashboard', fn() => view('operator.dashboard'))
+        Route::get('/dashboard', fn() => view('dashboard.operator', [
+            'navbar' => 'partials.navbar-operator',
+            'sidebar' => 'partials.sidebar-operator',
+        ]))
             ->name('dashboard');
 
         Route::get('/subscribers', fn() => view('operator.subscribers.index'))

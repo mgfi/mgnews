@@ -1,6 +1,7 @@
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
 
+        {{-- BRAND --}}
         <span class="navbar-brand mb-0">
             {{ __('admParNav.adminPanel') }}
         </span>
@@ -9,11 +10,17 @@
 
             {{-- LOCALE SWITCH --}}
             <div class="dropdown">
-
-                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" alt="{{ app()->getLocale() }}"
-                        width="18" height="12">
+                <button
+                    class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <img
+                        src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}"
+                        alt="{{ app()->getLocale() }}"
+                        width="18"
+                        height="12"
+                    >
 
                     <span class="text-uppercase">
                         {{ app()->getLocale() }}
