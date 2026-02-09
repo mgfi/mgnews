@@ -98,6 +98,9 @@ class NewsletterIndex extends Component
         return view('livewire.admin.newsletter-index', [
             'newsletters' => $newsletters,
             'stats' => $stats,
-        ])->layout('layouts.admin');
+        ])->layout('layouts.panel', [
+            'navbar'  => 'partials.navbar-admin',
+            'sidebar' => 'partials.sidebar-admin',
+        ]);
     }
 }

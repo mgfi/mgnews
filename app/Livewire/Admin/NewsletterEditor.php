@@ -168,6 +168,9 @@ class NewsletterEditor extends Component
     public function render()
     {
         return view('livewire.admin.newsletter-editor')
-            ->layout('layouts.admin');
+            ->layout('layouts.panel', [
+                'navbar'  => 'partials.navbar-admin',
+                'sidebar' => 'partials.sidebar-admin',
+            ]);
     }
 }

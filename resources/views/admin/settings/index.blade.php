@@ -1,7 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.panel')
 
 @section('content')
 
+    {{-- ===== FLASH SUCCESS ===== --}}
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
@@ -15,6 +16,7 @@
         </div>
     @endif
 
+    {{-- ===== AUTO REDIRECT ===== --}}
     @if (session('auto_redirect'))
         <script>
             setTimeout(() => {
@@ -23,11 +25,11 @@
         </script>
     @endif
 
+    {{-- ================= SETTINGS ================= --}}
     <div class="container py-4">
 
         <h1 class="mb-4">⚙️ {{ __('admSetInd.title') }}</h1>
 
-        {{-- ================= SETTINGS ================= --}}
         <div class="card">
             <div class="card-body">
 
@@ -76,7 +78,6 @@
 
             </div>
         </div>
-
     </div>
 
     {{-- ================= AUDIT LOG ================= --}}
@@ -115,7 +116,6 @@
                     </p>
 
                     <form method="POST" action="{{ route('admin.operators.store') }}">
-
                         @csrf
 
                         <div class="mb-3">
@@ -159,7 +159,6 @@
                         </div>
                     @else
                         <form method="POST" action="{{ route('admin.operators.bulkUpdate') }}">
-
                             @csrf
 
                             <div class="table-responsive">
@@ -188,7 +187,12 @@
                                                 <td>
                                                     @php $perms = $operator->permissions ?? []; @endphp
 
-                                                    @foreach (['view_dashboard' => 'Dashboard', 'subscriber_view' => 'Subskrybenci', 'newsletter_view' => 'Newsletter – podgląd', 'newsletter_edit' => 'Newsletter – edycja'] as $perm => $label)
+                                                    @foreach ([
+            'view_dashboard' => 'Dashboard',
+            'subscriber_view' => 'Subskrybenci',
+            'newsletter_view' => 'Newsletter – podgląd',
+            'newsletter_edit' => 'Newsletter – edycja',
+        ] as $perm => $label)
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox"
                                                                 name="users[{{ $operator->id }}][permissions][]"

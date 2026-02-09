@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.panel')
 
 @section('content')
     <h1 class="mb-4">

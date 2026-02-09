@@ -36,6 +36,9 @@ class SubscribersTable extends Component
     {
         return view('livewire.admin.subscribers-table', [
             'subscribers' => Subscriber::latest()->paginate(15),
-        ])->layout('layouts.admin');
+        ])->layout('layouts.panel', [
+            'navbar'  => 'partials.navbar-admin',
+            'sidebar' => 'partials.sidebar-admin',
+        ]);
     }
 }

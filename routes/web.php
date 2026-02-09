@@ -207,8 +207,13 @@ Route::middleware(['auth', 'verified', 'admin'])
 
             $operators = $query->get();
 
-            return view('admin.operators.index', compact('operators'));
-        })->middleware('permission:operator_view')
+            return view('admin.operators.index', [
+                'operators' => $operators,
+                'navbar'    => 'partials.navbar-admin',
+                'sidebar'   => 'partials.sidebar-admin',
+            ]);
+        })
+            ->middleware('permission:operator_view')
             ->name('operators.index');
 
         Route::post('/operators', [AdminUserController::class, 'store'])
@@ -329,11 +334,14 @@ Route::middleware(['auth', 'verified', 'admin'])
             ->name('operators.restore');
 
         /*
-        |--------------------------------------------------------------------------
-        | SUBSCRIBERS
-        |--------------------------------------------------------------------------
-        */
-        Route::get('/subscribers', fn() => view('admin.subscribers.index'))
+|--------------------------------------------------------------------------
+| SUBSCRIBERS
+|--------------------------------------------------------------------------
+*/
+        Route::get('/subscribers', fn() => view('admin.subscribers.index', [
+            'navbar'  => 'partials.navbar-admin',
+            'sidebar' => 'partials.sidebar-admin',
+        ]))
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
@@ -392,7 +400,7 @@ Route::middleware(['auth', 'verified', 'admin'])
 
             $logs = AuditLog::with('user')
                 ->latest()
-                ->paginate(2);
+                ->paginate(30);
 
             return view('admin.audit-logs.index', compact('logs'));
         })->middleware('permission:view_audit_logs')
@@ -415,11 +423,17 @@ Route::middleware(['auth', 'verified', 'operator'])
         ]))
             ->name('dashboard');
 
-        Route::get('/subscribers', fn() => view('operator.subscribers.index'))
+        Route::get('/subscribers', fn() => view('dashboard.operator', [
+            'navbar'  => 'partials.navbar-operator',
+            'sidebar' => 'partials.sidebar-operator',
+        ]))
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
-        Route::get('/newsletters', fn() => view('operator.newsletters.index'))
+        Route::get('/newsletters', fn() => view('dashboard.operator', [
+            'navbar'  => 'partials.navbar-operator',
+            'sidebar' => 'partials.sidebar-operator',
+        ]))
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
     });

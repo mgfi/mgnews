@@ -25,5 +25,6 @@ return [
     'operator_deleted' => 'Operator został usunięty.',
 
     'password_changed_login' => 'Twoje hasło zostało zmienione. Zaloguj się nowym hasłem.',
+    'operator_permissions_updated' => 'Uprawnienia operatora zostały zaktualizowane.',
 
 ];
