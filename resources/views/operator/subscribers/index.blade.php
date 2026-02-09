@@ -1,12 +1,9 @@
-@extends('layouts.panel', [
-    'navbar' => 'partials.navbar-operator',
-    'sidebar' => 'partials.sidebar-operator',
-])
+@extends('layouts.panel')
 
 @section('content')
-    <h1 class="mb-4">Subskrybenci</h1>
+    <h1 class="mb-4">
+        📬 Subskrybenci
+    </h1>
 
-    <div class="alert alert-secondary">
-        Widok subskrybentów operatora (do dalszej rozbudowy).
-    </div>
+    <livewire:operator.subscribers-table />
 @endsection
