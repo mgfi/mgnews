@@ -35,20 +35,9 @@ class AdminUserController extends Controller
             'invite_token'         => Str::uuid(),
             'invite_sent_at'       => now(),
             'is_active'            => true,
-            'must_change_password' => true,          // 🔐 FORCE PASSWORD CHANGE
-            'created_by'           => auth()->id(),   // 🔍 AUDIT / OWNERSHIP
+            'must_change_password' => true,
+            'created_by'           => auth()->id(),
         ]);
-
-        /*
-         |--------------------------------------------------------------------------
-         | Invite mail (disabled in dev)
-         |--------------------------------------------------------------------------
-         |
-         | Mail::to($operator->email)->send(
-         |     new \App\Mail\OperatorInviteMail($operator)
-         | );
-         |
-         */
 
         // Dev / test log instead of mail
         Log::info('OPERATOR INVITE GENERATED', [
@@ -68,7 +57,41 @@ class AdminUserController extends Controller
 
         return redirect()
             ->route('admin.settings.index')
-            ->with('success_operator_email', $operator->email)
+            ->with('success', __('alerts.operator_created'))
             ->with('redirect_after', route('admin.dashboard'));
+    }
+
+    /**
+     * Bulk update operators (status + permissions)
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $users = $request->input('users', []);
+
+        foreach ($users as $userId => $data) {
+            $user = User::find($userId);
+
+            if (! $user || ! $user->isOperator()) {
+                continue;
+            }
+
+            // Active / inactive
+            $user->is_active = isset($data['is_active']);
+
+            // Permissions
+            if (isset($data['permissions']) && is_array($data['permissions'])) {
+                $user->permissions = $data['permissions'];
+            }
+
+            $user->save();
+
+            AuditLogger::log(
+                'operator.bulk_updated',
+                'User',
+                ['email' => $user->email]
+            );
+        }
+
+        return back()->with('success', __('alerts.operator_permissions_updated'));
     }
 }

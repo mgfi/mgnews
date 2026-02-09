@@ -372,8 +372,11 @@ Route::middleware(['auth', 'verified', 'admin'])
 
             return view('admin.settings.index', [
                 'operators' => $operators,
+                'navbar'    => 'partials.navbar-admin',
+                'sidebar'   => 'partials.sidebar-admin',
             ]);
-        })->middleware('permission:settings_view')
+        })
+            ->middleware('permission:settings_view')
             ->name('settings.index');
 
         Route::post('/settings', function (Request $request) {
@@ -417,28 +420,26 @@ Route::middleware(['auth', 'verified', 'operator'])
     ->as('operator.')
     ->group(function () {
 
-        Route::get('/dashboard', fn() => view('dashboard.operator', [
-            'navbar' => 'partials.navbar-operator',
+        Route::get('/dashboard', fn() => view('operator.dashboard', [
+            'navbar'  => 'partials.navbar-operator',
             'sidebar' => 'partials.sidebar-operator',
         ]))
             ->name('dashboard');
 
-        Route::get('/subscribers', fn() => view('dashboard.operator', [
+        Route::get('/subscribers', fn() => view('operator.subscribers.index', [
             'navbar'  => 'partials.navbar-operator',
             'sidebar' => 'partials.sidebar-operator',
         ]))
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
-        Route::get('/newsletters', fn() => view('dashboard.operator', [
+        Route::get('/newsletters', fn() => view('operator.newsletters.index', [
             'navbar'  => 'partials.navbar-operator',
             'sidebar' => 'partials.sidebar-operator',
         ]))
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
     });
-
-
 /*
 |--------------------------------------------------------------------------
 | NEWSLETTER – PUBLIC
