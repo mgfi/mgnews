@@ -14,7 +14,7 @@ use App\Models\AuditLog;
 
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
-
+use App\Livewire\Operator\NewsletterIndex as OperatorNewsletterIndex;
 use App\Http\Controllers\NewsletterOpenController;
 use App\Http\Controllers\NewsletterClickController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -433,10 +433,7 @@ Route::middleware(['auth', 'verified', 'operator'])
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
 
-        Route::get('/newsletters', fn() => view('operator.newsletters.index', [
-            'navbar'  => 'partials.navbar-operator',
-            'sidebar' => 'partials.sidebar-operator',
-        ]))
+        Route::get('/newsletters', OperatorNewsletterIndex::class)
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
     });
