@@ -7,14 +7,18 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 use App\Services\AuditLogger;
-use App\Models\User;
-use App\Models\Subscriber;
-use App\Models\NewsletterSetting;
 use App\Models\AuditLog;
+use App\Models\NewsletterClick;
+use App\Models\NewsletterIssue;
+use App\Models\NewsletterOpen;
+use App\Models\NewsletterSetting;
+use App\Models\Subscriber;
+use App\Models\User;
 
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
 use App\Livewire\Operator\NewsletterIndex as OperatorNewsletterIndex;
+use App\Livewire\Operator\NewsletterEditor as OperatorNewsletterEditor;
 use App\Http\Controllers\NewsletterOpenController;
 use App\Http\Controllers\NewsletterClickController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -174,18 +178,42 @@ Route::middleware('auth')->group(function () {
 | ADMIN PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified', 'admin'])
+Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
 
+        Route::get('/dashboard', function () {
 
-        Route::get('/dashboard', fn() => view('dashboard.admin', [
-            'navbar' => 'partials.navbar-admin',
-            'sidebar' => 'partials.sidebar-admin',
-        ]))
-            ->middleware('permission:view_dashboard')
-            ->name('dashboard');
+            $subscribersCount      = Subscriber::where('is_active', 1)->count();
+            $subscribersAllCount   = Subscriber::count();
+
+            $newslettersDraftCount = NewsletterIssue::whereNull('sent_at')->count();
+            $newslettersSentCount  = NewsletterIssue::whereNotNull('sent_at')->count();
+
+            // === OPEN / CLICK RATE ===
+
+            $sentCount = max($newslettersSentCount, 1);
+
+            $opensCount  = NewsletterOpen::count();
+            $clicksCount = NewsletterClick::count();
+
+            $openRate = round(($opensCount / $sentCount) * 100, 1);
+            $clickRate = round(($clicksCount / $sentCount) * 100, 1);
+
+            return view('dashboard.admin', [
+                'navbar'                    => 'partials.navbar-admin',
+                'sidebar'                   => 'partials.sidebar-admin',
+
+                'subscribersCount'          => $subscribersCount,
+                'subscribersAllCount'       => $subscribersAllCount,
+                'newslettersDraftCount'     => $newslettersDraftCount,
+                'newslettersSentCount'      => $newslettersSentCount,
+
+                'openRate'                  => $openRate,
+                'clickRate'                 => $clickRate,
+            ]);
+        })->name('dashboard');
         /*
 |--------------------------------------------------------------------------
 | OPERATORS – LIST
@@ -415,7 +443,7 @@ Route::middleware(['auth', 'verified', 'admin'])
 | OPERATOR PANEL
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified', 'operator'])
+Route::middleware(['auth', 'verified', 'operator', 'panel.ui'])
     ->prefix('operator')
     ->as('operator.')
     ->group(function () {
@@ -436,6 +464,9 @@ Route::middleware(['auth', 'verified', 'operator'])
         Route::get('/newsletters', OperatorNewsletterIndex::class)
             ->middleware('permission:newsletter_view')
             ->name('newsletters.index');
+        Route::get('/newsletters/{newsletterIssue}/edit', OperatorNewsletterEditor::class)
+            ->middleware('permission:newsletter_edit')
+            ->name('newsletters.edit');
     });
 /*
 |--------------------------------------------------------------------------

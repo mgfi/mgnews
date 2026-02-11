@@ -12,10 +12,7 @@
 </head>
 
 <body class="bg-light">
-    @php
-        $navbar = $navbar ?? 'partials.navbar-admin';
-        $sidebar = $sidebar ?? 'partials.sidebar-admin';
-    @endphp
+
     {{-- TOP NAVBAR --}}
     @include($navbar)
 

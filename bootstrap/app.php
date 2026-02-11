@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'operator' => \App\Http\Middleware\OperatorMiddleware::class,
             'not.installed' => \App\Http\Middleware\EnsureNotInstalled::class,
             'permission'    => \App\Http\Middleware\CheckPermission::class,
+            'panel.ui'   => \App\Http\Middleware\SetPanelUi::class,
         ]);
 
 

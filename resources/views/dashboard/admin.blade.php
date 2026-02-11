@@ -2,76 +2,127 @@
 
 @section('content')
     <div class="container-fluid">
+
         <div class="alert alert-danger">
             TO JEST DASHBOARD: resources/views/dashboard/admin.blade.php
         </div>
+
         <h1 class="h4 mb-4">
-            Dashboard administratora
+            {{ __('dashAdm.title') }}
         </h1>
 
         {{-- KPI --}}
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
 
-            <div class="col-md-3">
+            {{-- Subskrybenci aktywni --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="text-muted small">Subskrybenci</div>
-                        <div class="fs-3 fw-bold">12 430</div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.subscribers_active') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ number_format($subscribersCount) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
+            {{-- Subskrybenci wszyscy --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="text-muted small">Newslettery</div>
-                        <div class="fs-3 fw-bold">86</div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.subscribers_all') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ number_format($subscribersAllCount) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
+            {{-- Newslettery – szkice --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="text-muted small">Open rate</div>
-                        <div class="fs-3 fw-bold">41%</div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.newsletters_draft') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ number_format($newslettersDraftCount) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
+            {{-- Newslettery – wysłane --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="text-muted small">Click rate</div>
-                        <div class="fs-3 fw-bold">9%</div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.newsletters_sent') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ number_format($newslettersSentCount) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Wskaźnik otwarć --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.open_rate') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ $openRate }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Wskaźnik kliknięć --}}
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">
+                            {{ __('dashAdm.kpi.click_rate') }}
+                        </div>
+                        <div class="fs-3 fw-bold">
+                            {{ $clickRate }}%
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
 
         {{-- OSTATNIE KAMPANIE --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">
-                Ostatnie kampanie
+                {{ __('dashAdm.sections.recent_campaigns') }}
             </div>
 
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Tytuł</th>
-                            <th>Status</th>
-                            <th>Autor</th>
-                            <th>Open</th>
-                            <th>Click</th>
-                            <th>Data</th>
+                            <th>{{ __('dashAdm.table.title') }}</th>
+                            <th>{{ __('dashAdm.table.status') }}</th>
+                            <th>{{ __('dashAdm.table.author') }}</th>
+                            <th>{{ __('dashAdm.table.open') }}</th>
+                            <th>{{ __('dashAdm.table.click') }}</th>
+                            <th>{{ __('dashAdm.table.date') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Nowa kolekcja wiosna</td>
-                            <td><span class="badge bg-success">Wysłany</span></td>
+                            <td><span class="badge bg-success">{{ __('dashAdm.status.sent') }}</span></td>
                             <td>operator@firma.pl</td>
                             <td>42%</td>
                             <td>10%</td>
@@ -79,7 +130,7 @@
                         </tr>
                         <tr>
                             <td>Promocja weekendowa</td>
-                            <td><span class="badge bg-secondary">Draft</span></td>
+                            <td><span class="badge bg-secondary">{{ __('dashAdm.status.draft') }}</span></td>
                             <td>admin@firma.pl</td>
                             <td>—</td>
                             <td>—</td>
@@ -93,27 +144,27 @@
         {{-- OPERATORZY --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">
-                Operatorzy
+                {{ __('dashAdm.sections.operators') }}
             </div>
 
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Ostatnia aktywność</th>
+                            <th>{{ __('dashAdm.table.email') }}</th>
+                            <th>{{ __('dashAdm.table.status') }}</th>
+                            <th>{{ __('dashAdm.table.last_activity') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>operator1@firma.pl</td>
-                            <td><span class="badge bg-success">Aktywny</span></td>
+                            <td><span class="badge bg-success">{{ __('dashAdm.status.active') }}</span></td>
                             <td>2026-02-06</td>
                         </tr>
                         <tr>
                             <td>operator2@firma.pl</td>
-                            <td><span class="badge bg-warning text-dark">Nieaktywny</span></td>
+                            <td><span class="badge bg-warning text-dark">{{ __('dashAdm.status.inactive') }}</span></td>
                             <td>—</td>
                         </tr>
                     </tbody>
@@ -127,8 +178,12 @@
             <div class="col-md-3">
                 <a href="{{ route('admin.newsletters.index') }}" class="card text-decoration-none shadow-sm h-100">
                     <div class="card-body">
-                        <div class="fw-semibold mb-1">Newslettery</div>
-                        <div class="text-muted small">Zarządzaj kampaniami</div>
+                        <div class="fw-semibold mb-1">
+                            {{ __('dashAdm.quick.newsletters_title') }}
+                        </div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.quick.newsletters_desc') }}
+                        </div>
                     </div>
                 </a>
             </div>
@@ -136,8 +191,12 @@
             <div class="col-md-3">
                 <a href="{{ route('admin.subscribers.index') }}" class="card text-decoration-none shadow-sm h-100">
                     <div class="card-body">
-                        <div class="fw-semibold mb-1">Subskrybenci</div>
-                        <div class="text-muted small">Lista i statusy</div>
+                        <div class="fw-semibold mb-1">
+                            {{ __('dashAdm.quick.subscribers_title') }}
+                        </div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.quick.subscribers_desc') }}
+                        </div>
                     </div>
                 </a>
             </div>
@@ -145,8 +204,12 @@
             <div class="col-md-3">
                 <a href="{{ route('admin.operators.index') }}" class="card text-decoration-none shadow-sm h-100">
                     <div class="card-body">
-                        <div class="fw-semibold mb-1">Operatorzy</div>
-                        <div class="text-muted small">Zespół</div>
+                        <div class="fw-semibold mb-1">
+                            {{ __('dashAdm.quick.operators_title') }}
+                        </div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.quick.operators_desc') }}
+                        </div>
                     </div>
                 </a>
             </div>
@@ -154,8 +217,12 @@
             <div class="col-md-3">
                 <a href="{{ route('admin.settings.index') }}" class="card text-decoration-none shadow-sm h-100">
                     <div class="card-body">
-                        <div class="fw-semibold mb-1">Ustawienia</div>
-                        <div class="text-muted small">Konfiguracja</div>
+                        <div class="fw-semibold mb-1">
+                            {{ __('dashAdm.quick.settings_title') }}
+                        </div>
+                        <div class="text-muted small">
+                            {{ __('dashAdm.quick.settings_desc') }}
+                        </div>
                     </div>
                 </a>
             </div>
