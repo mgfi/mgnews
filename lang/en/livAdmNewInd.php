@@ -9,6 +9,7 @@ return [
     'table' => [
         'id' => '#',
         'subject' => 'Subject',
+        'campaign' => 'Campaign',
         'preview' => 'Preview text',
         'status' => 'Status',
         'opens' => 'Opens',

@@ -9,6 +9,7 @@ return [
     'table' => [
         'id' => '#',
         'subject' => 'Temat',
+        'campaign' => 'Kampania',
         'preview' => 'Tekst podglądu',
         'status' => 'Status',
         'opens' => 'Otwarcia',

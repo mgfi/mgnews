@@ -1,5 +1,5 @@
 <div class="container">
-
+    <div class="alert alert-danger">To jest widok : resources\views\livewire\admin\newsletter-index.blade.php</div>
     @if (session()->has('success'))
         <div class="alert alert-success">
             {{ session('success') }}
@@ -28,6 +28,7 @@
                     <tr>
                         <th>{{ __('livAdmNewInd.table.id') }}</th>
                         <th>{{ __('livAdmNewInd.table.subject') }}</th>
+                        <th>{{ __('livAdmNewInd.table.campaign') }}</th>
                         <th>{{ __('livAdmNewInd.table.preview') }}</th>
                         <th>{{ __('livAdmNewInd.table.status') }}</th>
 
@@ -59,14 +60,29 @@
                         <tr>
                             <td>{{ $newsletter->id }}</td>
 
+                            {{-- SUBJECT --}}
                             <td>
                                 {{ $newsletter->title_pl ?: '—' }}
                             </td>
 
+                            {{-- KAMPANIA --}}
+                            <td>
+                                @if ($newsletter->campaign)
+                                    <a href="{{ route('admin.campaigns.show', $newsletter->campaign) }}"
+                                        class="text-decoration-none fw-semibold">
+                                        {{ $newsletter->campaign->topic }}
+                                    </a>
+                                @else
+                                    —
+                                @endif
+                            </td>
+
+                            {{-- PREVIEW --}}
                             <td>
                                 {{ $newsletter->preview_text_pl ?: '—' }}
                             </td>
 
+                            {{-- STATUS --}}
                             <td>
                                 @if ($newsletter->status === 'sent')
                                     <span class="badge bg-success">
@@ -83,30 +99,37 @@
                                 @endif
                             </td>
 
+                            {{-- OPENS --}}
                             <td class="text-center">
                                 {{ $isDraft ? '—' : $s['opens'] }}
                             </td>
 
+                            {{-- UNIQUE OPENS --}}
                             <td class="text-center">
                                 {{ $isDraft ? '—' : $s['unique_opens'] }}
                             </td>
 
+                            {{-- CLICKS --}}
                             <td class="text-center">
                                 {{ $isDraft ? '—' : $s['clicks'] }}
                             </td>
 
+                            {{-- UNIQUE CLICKS --}}
                             <td class="text-center">
                                 {{ $isDraft ? '—' : $s['unique_clicks'] }}
                             </td>
 
+                            {{-- CTR --}}
                             <td class="text-center">
                                 {{ $isDraft ? '—' : $s['ctr'] . '%' }}
                             </td>
 
+                            {{-- CREATED --}}
                             <td>
                                 {{ $newsletter->created_at->format('Y-m-d H:i') }}
                             </td>
 
+                            {{-- ACTIONS --}}
                             <td class="d-flex gap-1">
 
                                 {{-- EDIT --}}
@@ -151,6 +174,7 @@
 
                             </td>
                         </tr>
+
                     @empty
                         <tr>
                             <td colspan="11" class="text-center text-muted">

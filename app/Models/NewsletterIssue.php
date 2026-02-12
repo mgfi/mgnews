@@ -13,6 +13,9 @@ class NewsletterIssue extends Model
     use HasFactory;
 
     protected $fillable = [
+        // Campaign
+        'campaign', // 👈 DODANE
+
         // Subject / title
         'title_pl',
         'title_en',
@@ -43,6 +46,19 @@ class NewsletterIssue extends Model
         'sent_at' => 'datetime',
     ];
 
+    /* =========================
+     | Campaign helpers
+     ========================= */
+
+    public function hasCampaign(): bool
+    {
+        return ! empty($this->campaign);
+    }
+
+    public function scopeCampaign($query, string $campaign)
+    {
+        return $query->where('campaign', $campaign);
+    }
 
     /* =========================
      | Status helpers
@@ -67,6 +83,7 @@ class NewsletterIssue extends Model
     {
         return $this->isDraft();
     }
+
     public function scopeDraft($query)
     {
         return $query->where('status', 'draft');
@@ -81,13 +98,13 @@ class NewsletterIssue extends Model
     {
         return $query->where('status', 'sent');
     }
+
     /* =========================
- | Snapshot HTML
- ========================= */
+     | Snapshot HTML
+     ========================= */
 
     public function snapshotHtml(): void
     {
-        // snapshot robimy tylko raz
         if (! empty($this->content_html)) {
             return;
         }
@@ -99,25 +116,21 @@ class NewsletterIssue extends Model
             'content_html' => $html,
         ]);
     }
+
     /* =========================
- | Tracking
- ========================= */
+     | Tracking
+     ========================= */
 
     public function opens()
     {
         return $this->hasMany(NewsletterOpen::class, 'newsletter_issue_id');
     }
-    /* =========================
- | Click tracking
- ========================= */
 
     public function clicks()
     {
         return $this->hasMany(NewsletterClick::class, 'newsletter_issue_id');
     }
-    /**
-     * Unikalne otwarcia (per subscriber)
-     */
+
     public function uniqueOpens(): int
     {
         return $this->opens()
@@ -126,9 +139,6 @@ class NewsletterIssue extends Model
             ->count('subscriber_id');
     }
 
-    /**
-     * Unikalne kliknięcia (per subscriber + target)
-     */
     public function uniqueClicks(): int
     {
         return $this->clicks()
@@ -136,15 +146,7 @@ class NewsletterIssue extends Model
             ->distinct(['subscriber_id', 'target_url'])
             ->count();
     }
-    // public function scopeUnique($query)
-    // {
-    //     return $query
-    //         ->whereNotNull('subscriber_id')
-    //         ->distinct(['subscriber_id', 'target_url']);
-    // }
-    /**
-     * Click Through Rate (CTR) in %
-     */
+
     public function ctr(): float
     {
         $opens = $this->uniqueOpens();

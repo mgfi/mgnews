@@ -1,6 +1,8 @@
 @extends('layouts.panel')
-
 @section('content')
+<div class="alert alert-danger">
+    TO JEST DASHBOARD: resources\views\admin\newsletter_issues\index.blade.php
+</div>
 
     <h1>{{ __('admNewIssInd.title') }}</h1>
 
