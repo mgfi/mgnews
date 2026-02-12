@@ -15,8 +15,9 @@ return [
     ],
 
     'sections' => [
-        'recent_campaigns' => 'Ostatnie kampanie',
+        'campaigns' => 'Kampanie',
         'operators'        => 'Operatorzy',
+        'recent_newsletters' => 'Ostatnie newslettery',
     ],
 
     'table' => [
@@ -28,6 +29,9 @@ return [
         'date'          => 'Data',
         'email'         => 'Adres e-mail',
         'last_activity' => 'Ostatnia aktywność',
+        'topic'  => 'Temat',
+        'active'    => 'Aktywna',
+        'last_sent' => 'Ostatnia wysyłka',
     ],
 
     'status' => [
@@ -46,5 +50,9 @@ return [
         'operators_desc'    => 'Zespół',
         'settings_title'    => 'Ustawienia',
         'settings_desc'     => 'Konfiguracja systemu',
+    ],
+    'common' => [
+        'yes' => 'Tak',
+        'no'  => 'Nie',
     ],
 ];

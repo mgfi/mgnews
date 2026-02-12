@@ -15,8 +15,9 @@ return [
     ],
 
     'sections' => [
-        'recent_campaigns' => 'Recent campaigns',
-        'operators'        => 'Operators',
+        'campaigns'          => 'Campaigns',
+        'operators'          => 'Operators',
+        'recent_newsletters' => 'Recent newsletters',
     ],
 
     'table' => [
@@ -28,6 +29,12 @@ return [
         'date'          => 'Date',
         'email'         => 'Email',
         'last_activity' => 'Last activity',
+
+        // 👇 DODANE (kampanie)
+        'topic'     => 'Subject',
+        'active'    => 'Active',
+        'last_sent' => 'Last sent',
+        'campaign'  => 'Campaign',
     ],
 
     'status' => [
@@ -35,6 +42,11 @@ return [
         'draft'    => 'Draft',
         'active'   => 'Active',
         'inactive' => 'Inactive',
+    ],
+
+    'common' => [
+        'yes' => 'Yes',
+        'no'  => 'No',
     ],
 
     'quick' => [

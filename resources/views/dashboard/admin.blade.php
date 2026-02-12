@@ -101,10 +101,58 @@
         </div>
 
 
-        {{-- OSTATNIE KAMPANIE --}}
+        {{-- KAMPANIE --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">
-                {{ __('dashAdm.sections.recent_campaigns') }}
+                {{ __('dashAdm.sections.campaigns') }}
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ __('dashAdm.table.topic') }}</th>
+                            <th>{{ __('dashAdm.table.active') }}</th>
+                            <th>{{ __('dashAdm.table.last_sent') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a href="#" class="fw-semibold text-decoration-none">
+                                    Trendy Wiosna 2026
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ __('dashAdm.common.yes') }}
+                                </span>
+                            </td>
+                            <td>2026-02-05</td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <a href="#" class="fw-semibold text-decoration-none">
+                                    Black Friday 2025
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ __('dashAdm.common.no') }}
+                                </span>
+                            </td>
+                            <td>2025-11-29</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- OSTATNIE NEWSLETTERY --}}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold">
+                {{ __('dashAdm.sections.recent_newsletters') }}
             </div>
 
             <div class="table-responsive">
@@ -112,6 +160,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>{{ __('dashAdm.table.title') }}</th>
+                            <th>{{ __('dashAdm.table.campaign') }}</th>
                             <th>{{ __('dashAdm.table.status') }}</th>
                             <th>{{ __('dashAdm.table.author') }}</th>
                             <th>{{ __('dashAdm.table.open') }}</th>
@@ -122,14 +171,17 @@
                     <tbody>
                         <tr>
                             <td>Nowa kolekcja wiosna</td>
+                            <td>Trendy Wiosna 2026</td>
                             <td><span class="badge bg-success">{{ __('dashAdm.status.sent') }}</span></td>
                             <td>operator@firma.pl</td>
                             <td>42%</td>
                             <td>10%</td>
                             <td>2026-02-05</td>
                         </tr>
+
                         <tr>
                             <td>Promocja weekendowa</td>
+                            <td>—</td>
                             <td><span class="badge bg-secondary">{{ __('dashAdm.status.draft') }}</span></td>
                             <td>admin@firma.pl</td>
                             <td>—</td>
@@ -140,6 +192,8 @@
                 </table>
             </div>
         </div>
+
+
 
         {{-- OPERATORZY --}}
         <div class="card shadow-sm mb-4">
