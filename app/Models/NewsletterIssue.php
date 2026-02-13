@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Services\Newsletter\NewsletterHtmlRenderer;
 use App\Models\NewsletterOpen;
 use App\Models\NewsletterClick;
+use App\Models\Campaign;
 
 class NewsletterIssue extends Model
 {
@@ -14,7 +15,7 @@ class NewsletterIssue extends Model
 
     protected $fillable = [
         // Campaign
-        'campaign', // 👈 DODANE
+        'campaign_id',
 
         // Subject / title
         'title_pl',
@@ -47,17 +48,22 @@ class NewsletterIssue extends Model
     ];
 
     /* =========================
-     | Campaign helpers
+     | Campaign
      ========================= */
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
+    }
 
     public function hasCampaign(): bool
     {
-        return ! empty($this->campaign);
+        return $this->campaign_id !== null;
     }
 
-    public function scopeCampaign($query, string $campaign)
+    public function scopeInCampaign($query, int $campaignId)
     {
-        return $query->where('campaign', $campaign);
+        return $query->where('campaign_id', $campaignId);
     }
 
     /* =========================
@@ -123,12 +129,12 @@ class NewsletterIssue extends Model
 
     public function opens()
     {
-        return $this->hasMany(NewsletterOpen::class, 'newsletter_issue_id');
+        return $this->hasMany(NewsletterOpen::class);
     }
 
     public function clicks()
     {
-        return $this->hasMany(NewsletterClick::class, 'newsletter_issue_id');
+        return $this->hasMany(NewsletterClick::class);
     }
 
     public function uniqueOpens(): int
@@ -155,8 +161,10 @@ class NewsletterIssue extends Model
             return 0.0;
         }
 
-        $clicks = $this->uniqueClicks();
-
-        return round(($clicks / $opens) * 100, 2);
+        return round(($this->uniqueClicks() / $opens) * 100, 2);
+    }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

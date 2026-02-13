@@ -119,7 +119,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <a href="#" class="fw-semibold text-decoration-none">
+                                <a href="{{ route('admin.campaigns.show', 1) }}" class="fw-semibold text-decoration-none">
                                     Trendy Wiosna 2026
                                 </a>
                             </td>

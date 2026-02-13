@@ -14,6 +14,7 @@ use App\Models\NewsletterOpen;
 use App\Models\NewsletterSetting;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Models\Campaign;
 
 use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
@@ -214,6 +215,21 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
                 'clickRate'                 => $clickRate,
             ]);
         })->name('dashboard');
+        Route::get('/campaigns/{campaign}', function (Campaign $campaign) {
+
+            $newsletters = NewsletterIssue::query()
+                ->where('campaign_id', $campaign->id)
+                ->orderByDesc('created_at')
+                ->get();
+
+            return view('admin.campaigns.show', [
+                'campaign'    => $campaign,
+                'newsletters' => $newsletters,
+                'navbar'      => 'partials.navbar-admin',
+                'sidebar'     => 'partials.sidebar-admin',
+            ]);
+        })->name('campaigns.show')
+            ->middleware('permission:newsletter_view');
         /*
 |--------------------------------------------------------------------------
 | OPERATORS – LIST
