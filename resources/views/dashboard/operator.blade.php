@@ -4,6 +4,20 @@
 
 @section('content')
     <div class="container-fluid">
+        <div class="alert alert-danger">
+            TO JEST DASHBOARD: resources\views\dashboard\operator.blade.php
+        </div>
+        @php
+            $breadcrumbs = [
+                [
+                    'label' => __('breadcrumbs.dashboard'),
+                ],
+            ];
+        @endphp
+
+        @include('partials.breadcrumbs')
+
+
         <h1 class="h4 mb-4">
             Dashboard operatora
         </h1>

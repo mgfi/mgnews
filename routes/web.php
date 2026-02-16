@@ -215,6 +215,19 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
                 'clickRate'                 => $clickRate,
             ]);
         })->name('dashboard');
+        Route::get('/campaigns', function () {
+
+            $campaigns = Campaign::withCount('newsletters')
+                ->orderByDesc('created_at')
+                ->get();
+
+            return view('admin.campaigns.index', [
+                'campaigns' => $campaigns,
+                'navbar'  => 'partials.navbar-admin',
+                'sidebar' => 'partials.sidebar-admin',
+            ]);
+        })->name('campaigns.index');
+
         Route::get('/campaigns/{campaign}', function (Campaign $campaign) {
 
             $newsletters = NewsletterIssue::query()

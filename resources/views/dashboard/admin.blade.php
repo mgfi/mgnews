@@ -3,9 +3,20 @@
 @section('content')
     <div class="container-fluid">
 
+        {{-- FILE: resources/views/dashboard/admin.blade.php --}}
         <div class="alert alert-danger">
             TO JEST DASHBOARD: resources/views/dashboard/admin.blade.php
         </div>
+
+        @php
+            $breadcrumbs = [
+                [
+                    'label' => __('breadcrumbs.dashboard'),
+                ],
+            ];
+        @endphp
+
+        @include('partials.breadcrumbs')
 
         <h1 class="h4 mb-4">
             {{ __('dashAdm.title') }}
@@ -14,7 +25,6 @@
         {{-- KPI --}}
         <div class="row g-4 mb-4">
 
-            {{-- Subskrybenci aktywni --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -28,7 +38,6 @@
                 </div>
             </div>
 
-            {{-- Subskrybenci wszyscy --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -42,7 +51,6 @@
                 </div>
             </div>
 
-            {{-- Newslettery – szkice --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -56,7 +64,6 @@
                 </div>
             </div>
 
-            {{-- Newslettery – wysłane --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -70,7 +77,6 @@
                 </div>
             </div>
 
-            {{-- Wskaźnik otwarć --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -84,7 +90,6 @@
                 </div>
             </div>
 
-            {{-- Wskaźnik kliknięć --}}
             <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -100,11 +105,12 @@
 
         </div>
 
-
         {{-- KAMPANIE --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">
-                {{ __('dashAdm.sections.campaigns') }}
+                <a href="{{ route('admin.campaigns.index') }}" class="text-decoration-none text-dark">
+                    {{ __('dashAdm.sections.campaigns') }}
+                </a>
             </div>
 
             <div class="table-responsive">
@@ -192,8 +198,6 @@
                 </table>
             </div>
         </div>
-
-
 
         {{-- OPERATORZY --}}
         <div class="card shadow-sm mb-4">

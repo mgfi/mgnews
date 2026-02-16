@@ -7,25 +7,25 @@
     <div class="container-fluid">
 
         {{-- BREADCRUMBS --}}
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{{ route('admin.dashboard') }}">
-                        Dashboard
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    Kampanie
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{ $campaign->title }}
-                </li>
-            </ol>
-        </nav>
+        @php
+            $breadcrumbs = [
+                [
+                    'label' => __('breadcrumbs.campaigns'),
+                    'route' => 'admin.campaigns.index',
+                ],
+                [
+                    'label' => $campaign->title,
+                ],
+            ];
+        @endphp
+
+        @include('partials.breadcrumbs')
+
 
         <h1 class="h4 mb-4">
-            Kampania: {{ $campaign->title }}
+            {{ __('breadcrumbs.campaign') }}: {{ $campaign->title }}
         </h1>
+
 
         {{-- STATUS --}}
         <div class="mb-3">

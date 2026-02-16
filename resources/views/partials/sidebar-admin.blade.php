@@ -8,6 +8,11 @@
         {{ __('parSidAdm.newsletters') }}
     </a>
 
+    <a href="{{ route('admin.campaigns.index') }}"
+        class="nav-link {{ request()->routeIs('admin.campaigns.*') ? 'active' : '' }}">
+        {{ __('breadcrumbs.campaigns') }}
+    </a>
+
     <a class="nav-link" href="{{ route('admin.subscribers.index') }}">
         {{ __('parSidAdm.subscribers') }}
     </a>
