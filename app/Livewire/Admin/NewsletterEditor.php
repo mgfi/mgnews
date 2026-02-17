@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\NewsletterIssue;
+use App\Models\Campaign;
 use App\Services\Newsletter\NewsletterHtmlRenderer;
 
 class NewsletterEditor extends Component
@@ -17,23 +18,18 @@ class NewsletterEditor extends Component
      | BASIC META
      ===================================================== */
 
+    public ?int $campaign_id = null;
+    public $campaigns = [];
+
+    public bool $creatingCampaign = false;
+    public string $newCampaignTitle = '';
+
     public string $title_pl = '';
     public ?string $preview_text_pl = null;
 
-    /**
-     * Sekcje newslettera (NOWA STRUKTURA)
-     */
     public array $sections = [];
-
-    /**
-     * Temporary uploads
-     * Key: section_column_block
-     */
     public array $uploads = [];
 
-    /**
-     * Generated preview HTML (manual)
-     */
     public string $previewHtml = '';
 
     /* =====================================================
@@ -47,8 +43,10 @@ class NewsletterEditor extends Component
         $this->title_pl = $newsletter->title_pl ?? '';
         $this->preview_text_pl = $newsletter->preview_text_pl;
 
-        // NOWY FORMAT (sections)
         $this->sections = $newsletter->content_json ?? [];
+
+        $this->campaigns = Campaign::orderBy('title')->get();
+        $this->campaign_id = $newsletter->campaign_id;
     }
 
     /* =====================================================
@@ -69,10 +67,11 @@ class NewsletterEditor extends Component
         }
 
         $this->newsletter->update([
-            'title_pl'         => $this->title_pl,
-            'preview_text_pl'  => $this->preview_text_pl,
-            'content_json'     => $this->sections,
-            'blocks_count'     => $blocksCount,
+            'title_pl'        => $this->title_pl,
+            'preview_text_pl' => $this->preview_text_pl,
+            'content_json'    => $this->sections,
+            'blocks_count'    => $blocksCount,
+            'campaign_id'     => $this->campaign_id,
         ]);
 
         session()->flash('success', 'Newsletter saved');
@@ -88,6 +87,28 @@ class NewsletterEditor extends Component
             $this->sections,
             $this->newsletter->id
         );
+    }
+
+    /* =====================================================
+     | CREATE CAMPAIGN (INLINE)
+     ===================================================== */
+
+    public function createCampaign(): void
+    {
+        $this->validate([
+            'newCampaignTitle' => 'required|string|max:255',
+        ]);
+
+        $campaign = Campaign::create([
+            'title' => $this->newCampaignTitle,
+            'is_active' => true,
+        ]);
+
+        $this->campaigns = Campaign::orderBy('title')->get();
+        $this->campaign_id = $campaign->id;
+
+        $this->newCampaignTitle = '';
+        $this->creatingCampaign = false;
     }
 
     /* =====================================================
