@@ -8,7 +8,7 @@
             TO JEST WIDOK: resources/views/admin/subscribers/index.blade.php
         </div>
 
-        @php
+        {{-- @php
             $breadcrumbs = [
                 [
                     'label' => __('breadcrumbs.subscribers'),
@@ -16,7 +16,7 @@
             ];
         @endphp
 
-        @include('partials.breadcrumbs')
+        @include('partials.breadcrumbs') --}}
 
         <h1 class="h4 mb-4">
             {{ __('breadcrumbs.subscribers') }}

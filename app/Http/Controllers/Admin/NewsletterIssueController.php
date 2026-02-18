@@ -9,8 +9,13 @@ class NewsletterIssueController extends Controller
 {
     public function index()
     {
-        return view('admin.newsletter_issues.index', [
-            'issues' => NewsletterIssue::orderByDesc('id')->get(),
-        ]);
+        // $issues = NewsletterIssue::with('campaign')
+        //     ->orderByDesc('id')
+        //     ->paginate(20);
+        $issues = NewsletterIssue::with('campaign')
+            ->orderByDesc('id')
+            ->paginate(5);
+
+        return view('admin.newsletter_issues.index', compact('issues'));
     }
 }

@@ -8,15 +8,7 @@
             TO JEST WIDOK: resources/views/admin/settings/index.blade.php
         </div>
 
-        @php
-            $breadcrumbs = [
-                [
-                    'label' => __('breadcrumbs.settings'),
-                ],
-            ];
-        @endphp
 
-        @include('partials.breadcrumbs')
 
         <h1 class="h4 mb-4">
             {{ __('breadcrumbs.settings') }}

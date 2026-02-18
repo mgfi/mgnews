@@ -20,6 +20,7 @@ use App\Livewire\Admin\NewsletterIndex;
 use App\Livewire\Admin\NewsletterEditor;
 use App\Livewire\Operator\NewsletterIndex as OperatorNewsletterIndex;
 use App\Livewire\Operator\NewsletterEditor as OperatorNewsletterEditor;
+use App\Http\Controllers\Admin\NewsletterIssueController;
 use App\Http\Controllers\NewsletterOpenController;
 use App\Http\Controllers\NewsletterClickController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -243,6 +244,28 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
             ]);
         })->name('campaigns.show')
             ->middleware('permission:newsletter_view');
+        Route::get('/newsletter-issues', [NewsletterIssueController::class, 'index'])
+            ->middleware('permission:newsletter_view')
+            ->name('newsletter-issues.index');
+
+        Route::post('/newsletter-issues/{issue}/send', function (NewsletterIssue $issue) {
+
+            abort_if($issue->isSent(), 403);
+
+            $issue->update([
+                'sent_at' => now(),
+            ]);
+
+            AuditLogger::log('newsletter_issue_sent', 'NewsletterIssue', [
+                'id'    => $issue->id,
+                'title' => $issue->title,
+            ]);
+
+            return back()->with('success', __('admNewIssInd.success'));
+        })
+            ->middleware('permission:newsletter_edit')
+            ->name('newsletter-issues.send');
+
         /*
 |--------------------------------------------------------------------------
 | OPERATORS – LIST
@@ -265,13 +288,23 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
             $operators = $query->get();
 
             return view('admin.operators.index', [
-                'operators' => $operators,
-                'navbar'    => 'partials.navbar-admin',
-                'sidebar'   => 'partials.sidebar-admin',
+                'operators'   => $operators,
+                'navbar'      => 'partials.navbar-admin',
+                'sidebar'     => 'partials.sidebar-admin',
+                'breadcrumbs' => [
+                    [
+                        'route' => 'admin.dashboard',
+                        'label' => __('Dashboard'),
+                    ],
+                    [
+                        'label' => __('breadcrumbs.operators'),
+                    ],
+                ],
             ]);
         })
             ->middleware('permission:operator_view')
             ->name('operators.index');
+
 
         Route::post('/operators', [AdminUserController::class, 'store'])
             ->middleware('permission:operator_create')
@@ -396,8 +429,17 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
 |--------------------------------------------------------------------------
 */
         Route::get('/subscribers', fn() => view('admin.subscribers.index', [
-            'navbar'  => 'partials.navbar-admin',
-            'sidebar' => 'partials.sidebar-admin',
+            'navbar'      => 'partials.navbar-admin',
+            'sidebar'     => 'partials.sidebar-admin',
+            'breadcrumbs' => [
+                [
+                    'route' => 'admin.dashboard',
+                    'label' => __('Dashboard'),
+                ],
+                [
+                    'label' => __('breadcrumbs.subscribers'),
+                ],
+            ],
         ]))
             ->middleware('permission:subscriber_view')
             ->name('subscribers.index');
@@ -428,9 +470,18 @@ Route::middleware(['auth', 'verified', 'admin', 'panel.ui'])
                 ->get();
 
             return view('admin.settings.index', [
-                'operators' => $operators,
-                'navbar'    => 'partials.navbar-admin',
-                'sidebar'   => 'partials.sidebar-admin',
+                'operators'   => $operators,
+                'navbar'      => 'partials.navbar-admin',
+                'sidebar'     => 'partials.sidebar-admin',
+                'breadcrumbs' => [
+                    [
+                        'route' => 'admin.dashboard',
+                        'label' => __('Dashboard'),
+                    ],
+                    [
+                        'label' => __('breadcrumbs.settings'),
+                    ],
+                ],
             ]);
         })
             ->middleware('permission:settings_view')

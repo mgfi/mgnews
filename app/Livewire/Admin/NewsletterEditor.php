@@ -181,17 +181,38 @@ class NewsletterEditor extends Component
             }
         }
     }
-
+    protected function breadcrumbs(): array
+    {
+        return [
+            [
+                'route' => 'admin.dashboard',
+                'label' => __('Dashboard'),
+            ],
+            [
+                'route' => 'admin.newsletters.index',
+                'label' => __('livAdmNewInd.title'),
+            ],
+            [
+                'label' => $this->newsletter->title_pl ?? __('admNewEdi.title'),
+            ],
+        ];
+    }
     /* =====================================================
      | RENDER
      ===================================================== */
 
     public function render()
     {
-        return view('livewire.admin.newsletter-editor')
-            ->layout('layouts.panel', [
-                'navbar'  => 'partials.navbar-admin',
-                'sidebar' => 'partials.sidebar-admin',
+        return view('livewire.admin.newsletter-editor', [
+            'newsletter' => $this->newsletter,
+            'campaigns'  => $this->campaigns,
+            'sections'   => $this->sections,
+        ])
+            ->layout('layouts.panel')
+            ->layoutData([
+                'navbar'      => 'partials.navbar-admin',
+                'sidebar'     => 'partials.sidebar-admin',
+                'breadcrumbs' => $this->breadcrumbs(),
             ]);
     }
 }

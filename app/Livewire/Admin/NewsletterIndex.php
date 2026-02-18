@@ -15,22 +15,56 @@ class NewsletterIndex extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
+
     public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Breadcrumbs
+    |--------------------------------------------------------------------------
+    */
+
+    protected function breadcrumbs(): array
+    {
+        return [
+            [
+                'route' => 'admin.dashboard',
+                'label' => __('Dashboard'),
+            ],
+            [
+                'label' => __('livAdmNewInd.title'),
+            ],
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         $newsletter = NewsletterIssue::create([
-            'title_pl' => 'Nowy newsletter',
-            'title_en' => 'New newsletter',
+            'title_pl'        => 'Nowy newsletter',
+            'title_en'        => 'New newsletter',
             'preview_text_pl' => null,
             'preview_text_en' => null,
-            'status' => 'draft',
-            'content_json' => [],
-            'created_by' => Auth::id(),
+            'status'          => 'draft',
+            'content_json'    => [],
+            'created_by'      => Auth::id(),
         ]);
 
         return redirect()->route('admin.newsletters.edit', $newsletter);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sorting
+    |--------------------------------------------------------------------------
+    */
+
     public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
@@ -43,14 +77,16 @@ class NewsletterIndex extends Component
         $this->resetPage();
     }
 
-    /**
-     * 🧪 Test Send — wysyłka testowa do aktualnego admina
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Test Send
+    |--------------------------------------------------------------------------
+    */
+
     public function sendTest(int $newsletterId): void
     {
         $newsletter = NewsletterIssue::findOrFail($newsletterId);
 
-        // soft guard: brak bloków
         if (empty($newsletter->content_json) || count($newsletter->content_json) === 0) {
             session()->flash('error', 'Newsletter nie ma żadnych bloków.');
             return;
@@ -68,6 +104,12 @@ class NewsletterIndex extends Component
         session()->flash('success', 'Testowy email został wysłany na Twój adres.');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Send (Queue)
+    |--------------------------------------------------------------------------
+    */
+
     public function send(int $newsletterId): void
     {
         logger()->info('SEND REQUEST', ['id' => $newsletterId]);
@@ -80,7 +122,11 @@ class NewsletterIndex extends Component
         );
     }
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     public function render()
     {
@@ -97,10 +143,12 @@ class NewsletterIndex extends Component
 
         return view('livewire.admin.newsletter-index', [
             'newsletters' => $newsletters,
-            'stats' => $stats,
-        ])->layout('layouts.panel', [
-            'navbar'  => 'partials.navbar-admin',
-            'sidebar' => 'partials.sidebar-admin',
-        ]);
+            'stats'       => $stats,
+        ])
+            ->layout('layouts.panel', [
+                'navbar'      => 'partials.navbar-admin',
+                'sidebar'     => 'partials.sidebar-admin',
+                'breadcrumbs' => $this->breadcrumbs(),
+            ]);
     }
 }

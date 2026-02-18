@@ -29,6 +29,11 @@
 
                 @include('partials.flash')
 
+                {{-- 🔥 BREADCRUMBS --}}
+                @if (!empty($breadcrumbs))
+                    @include('partials.breadcrumbs', ['breadcrumbs' => $breadcrumbs])
+                @endif
+
                 @if (session('redirect_after'))
                     <script>
                         setTimeout(() => {
@@ -37,7 +42,9 @@
                     </script>
                 @endif
 
+                {{-- 🔥 LIVEWIRE SLOT --}}
                 {{ $slot ?? '' }}
+
                 @yield('content')
 
             </main>
